@@ -119,12 +119,14 @@ func test_summary_and_next_life_ui() -> void:
 	scene.world.history.append({"type":"conviction","day":0,"character_id":"player_1","imprisoned_until":3,"reason":"Delilli operasyon"})
 	scene._refresh_hud()
 	if not scene.hud.age_label.text.contains("04.09.1962") or not scene.hud.age_label.text.contains("Delilli operasyon"): failures.append("HUD must show prison release date and reason")
+	scene.world.history.append({"type":"focus_completed","day":0,"character_id":"player_1","focus_id":"university_prep"})
 	scene.world.characters.player_1.lifespan_end_day = 1
 	scene.simulation.set_paused(false)
 	scene._process(10.0)
 	var panel = scene.hud.get("life_summary_panel")
 	if panel == null: failures.append("life summary panel missing"); scene.free(); return
 	if not panel.visible or not scene.simulation.paused or not panel.entries.text.contains("Kariyer") or not panel.entries.text.contains("İlişkiler") or not panel.entries.text.contains("Mahalle"): failures.append("death must show career, relationships and lasting world summary")
+	if not panel.entries.text.contains("Üniversite hazırlığı ve kayıt") or panel.entries.text.contains("university_prep"): failures.append("summary must display the localized completed focus title")
 	panel.next_life_requested.emit("light")
 	if scene.world.player_id == "player_1" or panel.visible or not scene.simulation.paused: failures.append("summary new-life route must replace player and keep pause")
 	scene.hud.show_district("liman")

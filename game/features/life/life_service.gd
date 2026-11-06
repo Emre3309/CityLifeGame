@@ -64,7 +64,11 @@ static func summary(world: RefCounted) -> String:
 	for entry in world.history:
 		if entry.get("character_id",entry.get("actor_id","")) != actor.id: continue
 		if entry.type == "death": cause = "Ömür tamamlandı" if entry.cause == "lifespan" else entry.cause
-		if entry.type == "focus_completed": career.append("Tamamlanan odak: " + entry.focus_id)
+		if entry.type == "focus_completed":
+			var focus_name: String = entry.focus_id
+			for focus in preload("res://features/focus/focus_service.gd").definitions():
+				if focus.id == entry.focus_id: focus_name = focus.name
+			career.append("Tamamlanan odak: " + focus_name)
 		if entry.type in ["authority_action","conviction","event_resolved"]: changes.append(entry.reason)
 	var relations: Array[String] = []
 	for id in actor.relationships: relations.append("%s: %d/100" % [world.characters[id].name,actor.relationships[id]])

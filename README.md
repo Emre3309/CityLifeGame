@@ -1,37 +1,26 @@
 # Şehir ve Hayat
 
-Windows için Godot 4 standard ve GDScript ile geliştirilen hayat ve şehir stratejisi prototipi. Bu ilk adım yalnızca boş bir Node3D ana sahne ve bağımlılıksız test altyapısı içerir.
+Godot 4 ile hazırlanmış Windows hayat ve şehir stratejisi ilk oynanabilir prototipi. 1 Eylül 1962’de aydınlık veya karanlık bir yol seçin; zaman, odaklar, olaylar, ilişkiler ve şehirdeki bağımsız aktörler dünyayı değiştirir. Oyun duraklatılmış başlar.
 
-## Kurulum
+## Oyunu başlatma
 
-Godot **4.7.2 stable standard Windows x86_64** kullanılır. Kesin `--version` çıktısı ve resmî indirme bağlantıları `tools/toolchain.json` içindedir; başlatıcılar farklı sürümü reddeder. .NET sürümü veya harici test eklentisi gerekmez.
+Hazırlanmış Windows paketinde `OyunuBaslat.bat` dosyasını açın veya `build/windows/SehirHayat.exe` dosyasını çalıştırın. EXE ve yanındaki `SehirHayat.pck` birlikte gereklidir. Paket Git tarafından izlenmez; yoksa aşağıdaki export adımını çalıştırın. Kaynak projeyi Godot ile açmak için `scripts/run.ps1` veya editörde `game/project.godot` kullanın.
 
-1. `tools/toolchain.json` içindeki `download_url` bağlantısından resmî ZIP dosyasını indirin.
-2. PowerShell `Get-FileHash -Algorithm SHA512 <dosya.zip>` çıktısını `archive_sha512` ile karşılaştırın.
-3. ZIP içindeki iki yürütülebiliri `tools/godot/` klasörüne çıkarın.
+Sol tıklama mahalle seçer; sol tuşla sürükleme kamerayı taşır, sağ tuşla sürükleme döndürür, fare tekerleği yakınlaştırır. Üst çubuktan duraklatma ve hız seçimi yapılır. Odak, olay, ilişkiler ve kayıt panelleri üst çubuktadır. Başlangıç menüsündeki yetişkin senaryoları vali, polis ve ağ lideri yetkilerini denemek içindir.
 
-Araçlar Git'e alınmaz. Dışa aktarma şablonlarının aynı sürümü ve özeti de sabitlenmiştir; bu bootstrap adımı şablonları indirmez veya oyun dışa aktarmaz.
+## Kurulum ve geliştirme
 
-## Çalıştırma
-
-Proje kökünde PowerShell ile:
+Godot **4.7.2 stable standard Windows x86_64** gerekir. Sabit sürüm, resmî bağlantılar ve SHA-512 değerleri `tools/toolchain.json` içindedir. Motor ZIP dosyasını indirip SHA-512 özetini doğrulayın ve iki yürütülebiliri `tools/godot/` içine çıkarın. Export için aynı dosyadaki `export_templates.download_url` dosyasını indirip `export_templates.archive_sha512` ile doğrulayın; TPZ içindeki `templates` klasörünün içeriğini `tools/godot/templates/` içine çıkarın. Araçlar ve build Git'e alınmaz.
 
 ```powershell
 powershell -ExecutionPolicy Bypass -File scripts/run.ps1
-powershell -ExecutionPolicy Bypass -File scripts/test.ps1 -Suite boot
-powershell -ExecutionPolicy Bypass -File scripts/test.ps1
+powershell -ExecutionPolicy Bypass -File scripts/test.ps1 -Suite integration
+powershell -ExecutionPolicy Bypass -File scripts/test.ps1 -Suite all
+powershell -ExecutionPolicy Bypass -File scripts/export.ps1
 ```
 
-Son komut tüm `game/tests/test_*.gd` dosyalarını sıralı çalıştırır. Betikler başka çalışma klasöründen de mutlak yollarıyla çağrılabilir. Oyun Compatibility renderer ve 1280×720 başlangıç penceresi kullanır. Henüz şehir veya oynanış yoktur.
+Test çalıştırıcısı tek suite veya tüm suite'leri çalıştırır; başarısızlıkta sıfır dışı çıkış döndürür. Export `Windows Desktop` presetini kullanarak `build/windows/SehirHayat.exe` ve `.pck` üretir. `game/content/` altındaki JSON dosyaları odak, olay, karakter, kurum, şehir ve senaryo içeriğini barındırır; değişikliklerden sonra testleri ve export'u yeniden çalıştırın.
 
-## Test sözleşmesi
+## Kapsam ve doğrulama
 
-Her `game/tests/test_<suite>.gd` dosyası `RefCounted` tabanlıdır ve `run() -> Array[String]` ile hata listesi döndürür. Boş liste başarıdır. `-Suite <suite>` tek dosyayı, varsayılan `-Suite all` tüm dosyaları seçer. Çalıştırıcı `PASS <suite>` ve exit 0 veya hata ayrıntılarıyla `FAIL <suite>` ve exit 1 üretir. Bilinmeyen/boş test kümesi başarısız olur. PowerShell başlatıcısı motorun çıkış kodunu aynen iletir; motor eksikse veya sürüm eşleşmiyorsa anlaşılır hata ve exit 1 döndürür.
-
-Çıplak motor komutu:
-
-```powershell
-./tools/godot/Godot_v4.7.2-stable_win64_console.exe --headless --path game --script res://tests/run_tests.gd -- --suite=boot
-```
-
-Godot editöründe açmak için `game/project.godot` dosyasını seçin. Tasarım ve uygulama planı `docs/superpowers/` altındadır.
+Bu sürüm tam üniversite hayatı, çift taraflı çalışma veya normal kariyer üzerinden tüm üst makamlara yükselme sunmaz. Üniversite hazırlığı kayıt sağlar, mezuniyet sağlamaz. Makam ve yetki örnekleri geliştirme senaryolarındadır. Doğrulama yöntemi ve sınırlamaları [ilk oynanabilir raporunda](docs/validation/first-playable.md) açıklanır.

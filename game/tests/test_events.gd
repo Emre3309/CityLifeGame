@@ -46,7 +46,7 @@ func test_family_choice_updates_money_and_relationship() -> Array[String]:
 	capped.characters.player_1.relationships.nermin = 98
 	capped.characters.nermin.relationships.player_1 = 98
 	var result := _resolve(capped, _offer(capped, "family_support"), "help_family")
-	if result.ok and (result.deltas.relationships.nermin != 2 or not result.reason.contains("+2")):
+	if not result.ok or result.deltas.relationships.nermin != 2 or not result.reason.contains("+2"):
 		failures.append("relationship feedback must use actual clamped delta")
 	return failures
 
