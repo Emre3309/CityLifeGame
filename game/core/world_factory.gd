@@ -39,16 +39,8 @@ static func create(route: String, seed: int) -> State:
 	world.organizations.police.investigations = {}
 	world.organizations.harbor_network.member_ids = ["cem"]
 	world.organizations.harbor_network.assignments = {}
-	world.characters[world.player_id] = {
-		"id": world.player_id, "name": "Deniz", "district_id": "cinar",
-		"birth_date": {"year": 1945, "month": 3, "day": 1}, "death_day": -1,
-		"health": 100, "money": 100, "investigation_risk": 0,
-		"background": "Liseyi bitirdin; eğitim ve kamu hayatına açılan bir yol önünde." if route == "light" else "Liseyi yarıda bıraktın; geçimini sağlamak için sokak çevrenle bağ kurdun.",
-		"route": route, "role": "citizen",
-		"education": "high_school_graduate" if route == "light" else "high_school_dropout",
-		"knowledge": {}, "relationships": {"nermin": 70, "aylin": 20},
-		"imprisoned_until": -1, "lifespan_end_day": 24000
-	}
+	world.characters[world.player_id] = create_player(world.player_id, route, {"year":1945,"month":3,"day":1}, 0)
+	world.characters[world.player_id].relationships = {"nermin":70,"aylin":20}
 	world.characters.nermin.relationships[world.player_id] = 70
 	world.characters.aylin.relationships[world.player_id] = 20
 	return world
@@ -68,3 +60,16 @@ static func create_scenario(scenario_id: String, seed_value: int) -> State:
 			world.history.append({"type":"development_scenario","day":0,"reason":"Geliştirme senaryosu: " + row.title})
 			return world
 	return null
+
+# Fresh personal state is shared by the first and subsequent lives.
+static func create_player(id: String, route: String, birth: Dictionary, start_day: int) -> Dictionary:
+	return {
+		"id": id, "name": "Deniz", "district_id": "cinar",
+		"birth_date": birth, "death_day": -1,
+		"health": 100, "money": 100, "investigation_risk": 0,
+		"background": "Liseyi bitirdin; eğitim ve kamu hayatına açılan bir yol önünde." if route == "light" else "Liseyi yarıda bıraktın; geçimini sağlamak için sokak çevrenle bağ kurdun.",
+		"route": route, "role": "citizen",
+		"education": "high_school_graduate" if route == "light" else "high_school_dropout",
+		"knowledge": {}, "relationships": {},
+		"imprisoned_until": -1, "lifespan_end_day": start_day + 24000
+	}

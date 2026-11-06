@@ -189,7 +189,7 @@ static func _valid_character(actor: Dictionary, chars: Dictionary, districts: Di
 	if not _fields(actor.birth_date,["year","month","day"]): return false
 	var birth: Dictionary = actor.birth_date
 	if not _number(birth.year,1,9999) or not _number(birth.month,1,12) or not _number(birth.day,1,Calendar.days_in_month(int(birth.year),int(birth.month))): return false
-	if not _number(actor.death_day,-1,day) or not _number(actor.imprisoned_until,-1) or not _number(actor.lifespan_end_day,1) or not _number(actor.money) or not _number(actor.health,0,100) or not _number(actor.investigation_risk,0,100): return false
+	if not _number(actor.death_day,-1,day) or not _number(actor.imprisoned_until,-1,MAX_SUPPORTED_DAY) or not _number(actor.lifespan_end_day,1) or not _number(actor.money) or not _number(actor.health,0,100) or not _number(actor.investigation_risk,0,100): return false
 	return _scores(actor.knowledge) and _scores(actor.relationships,chars,true) and (not actor.has("unlocked_actions") or _list(actor.unlocked_actions))
 
 static func _valid_organization(org: Dictionary, chars: Dictionary, districts: Dictionary, day: int) -> bool:
@@ -214,12 +214,14 @@ static func _valid_history(entry: Variant, chars: Dictionary, districts: Diction
 		"event_resolved":["character_id","instance_id","template_id","participant_ids","choice_id","deltas","reason"],
 		"development_scenario":["reason"],"npc_week":["reason"],"npc_skipped":["actor_id","action","reason"],
 		"investigation_progress":["character_id","reason"],"office_succession":["organization_id","leader_id","reason"],
+		"release":["character_id","reason"],"life_started":["character_id","previous_character_id","route"],
 		"conviction":["character_id","imprisoned_until","reason"],"authority_action":["actor_id","action","payload","reason"],"death":["character_id","cause"]}
 	if not entry is Dictionary or not entry.get("type") is String or not layouts.has(entry.type) or not _fields(entry,["type","day"] + layouts[entry.type]) or not _number(entry.day,0,day): return false
 	for key in ["reason","cause","action","choice_id"]:
 		if entry.has(key) and not entry[key] is String: return false
-	for key in ["actor_id","character_id","leader_id"]:
+	for key in ["actor_id","character_id","leader_id","previous_character_id"]:
 		if entry.has(key) and not _ref(entry[key],chars,key == "leader_id"): return false
+	if entry.type == "life_started" and (entry.route not in ["light","dark"] or entry.character_id == entry.previous_character_id or chars[entry.previous_character_id].death_day == -1 or chars[entry.previous_character_id].death_day > entry.day): return false
 	if entry.has("organization_id") and not _ref(entry.organization_id,orgs): return false
 	if entry.has("focus_id") and not _ref(entry.focus_id,focuses): return false
 	if entry.has("imprisoned_until") and not _number(entry.imprisoned_until,entry.day): return false

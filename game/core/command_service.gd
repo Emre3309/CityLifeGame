@@ -6,6 +6,9 @@ const Focus = preload("res://features/focus/focus_service.gd")
 const Events = preload("res://features/events/event_service.gd")
 
 static func execute(world: State, command: Dictionary) -> Dictionary:
+	if command.get("type", "") == "start_next_life":
+		if not command.get("route") is String: return {"ok":false,"reason":"Başlangıç yolu geçersiz."}
+		return preload("res://features/life/life_service.gd").start_next_life(world,command.route)
 	if command.get("type", "") == "start_scenario":
 		if world != null: return {"ok":false,"reason":"Başlamış hayat değiştirilemez; geliştirme senaryosu için yeniden başlat."}
 		if not command.get("scenario_id") is String or not command.get("seed",1) is int: return {"ok":false,"reason":"Senaryo bilgileri geçersiz."}

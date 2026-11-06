@@ -20,6 +20,7 @@ func _ready() -> void:
 	hud.save_requested.connect(_save_world)
 	hud.load_requested.connect(_load_world)
 	hud.start_requested.connect(_start_world)
+	hud.next_life_requested.connect(_start_next_life)
 	hud.scenario_requested.connect(_start_scenario)
 	hud.authority_requested.connect(func(action: String, payload: Dictionary):
 		var result := Commands.execute(world,{"type":"authority","actor_id":world.player_id,"action":action,"payload":payload})
@@ -37,7 +38,7 @@ func _ready() -> void:
 		_refresh_hud()
 	)
 	hud.pause_requested.connect(func():
-		if world != null:
+		if world != null and world.characters[world.player_id].death_day == -1:
 			simulation.set_paused(not simulation.paused)
 			_refresh_hud()
 	)
@@ -63,6 +64,14 @@ func _start_world(route: String) -> void:
 	hud.start_panel.hide()
 	_refresh_hud()
 
+func _start_next_life(route: String) -> void:
+	var result := Commands.execute(world,{"type":"start_next_life","route":route})
+	if result.ok:
+		simulation.set_paused(true)
+		_refresh_hud()
+	else:
+		hud.life_summary_panel.feedback.text = result.reason
+
 func _start_scenario(scenario_id: String) -> void:
 	var result := Commands.execute(world,{"type":"start_scenario","scenario_id":scenario_id,"seed":19620901})
 	if not result.ok:
@@ -82,6 +91,7 @@ func _process(delta: float) -> void:
 		_refresh_hud()
 
 func _refresh_hud() -> void:
+	if world != null and world.characters[world.player_id].death_day != -1: simulation.set_paused(true)
 	city.refresh(world)
 	city.set_paused(world == null or simulation.paused)
 	hud.refresh_world(world, simulation.paused, simulation.days_per_second)

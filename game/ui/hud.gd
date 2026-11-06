@@ -2,6 +2,7 @@ extends CanvasLayer
 
 signal district_requested(district_id: String)
 signal start_requested(route: String)
+signal next_life_requested(route: String)
 signal scenario_requested(scenario_id: String)
 signal authority_requested(action: String, payload: Dictionary)
 signal focus_requested(focus_id: String)
@@ -27,6 +28,8 @@ const TYPE_DESCRIPTIONS := {
 	"government": "Şehrin idari işlerinin yürütüldüğü hükümet konağı. Meydanın en belirgin yapısı.",
 	"warehouse": "Kıyıdan gelen malların toplandığı ambar. Limanın çalışma hayatı burada şekillenir."
 }
+var life_summary_panel: Control
+var life_summary_button: Button
 var save_panel: Control
 var save_feedback: Label
 var save_button: Button
@@ -124,6 +127,7 @@ func _build_ui() -> void:
 	header_title = _label("ŞEHİR VE HAYAT", 27, Color("264e48"))
 	titles.add_child(header_title)
 	age_label = _label("Geçmişini seçerek hayatına başla.", 13, Color("66766a"))
+	age_label.autowrap_mode = TextServer.AUTOWRAP_WORD_SMART
 	titles.add_child(age_label)
 	date_label = _label("1962  /  ŞEHİR REHBERİ", 15, Color("6b7c70"))
 	date_label.vertical_alignment = VERTICAL_ALIGNMENT_CENTER
@@ -221,6 +225,15 @@ func _build_ui() -> void:
 	saves_button.text = "Kayıt"
 	saves_button.pressed.connect(func(): _show_personal_panel(save_panel))
 	personal_controls.add_child(saves_button)
+	life_summary_button = Button.new()
+	life_summary_button.text = "Hayat özeti"
+	life_summary_button.pressed.connect(func(): _show_personal_panel(life_summary_panel))
+	personal_controls.add_child(life_summary_button)
+	life_summary_button.hide()
+	life_summary_panel = preload("res://features/life/life_summary_panel.gd").new()
+	life_summary_panel.name = "LifeSummaryPanel"
+	root.add_child(life_summary_panel)
+	life_summary_panel.next_life_requested.connect(func(route: String): next_life_requested.emit(route))
 	_build_save_panel()
 	authority_panel = AuthorityPanel.new()
 	authority_panel.name = "AuthorityPanel"
@@ -298,6 +311,9 @@ func _theme() -> Theme:
 	return result
 
 func refresh_world(world, paused: bool, speed: int) -> void:
+	life_summary_panel.refresh(world)
+	var dead: bool = world != null and world.characters[world.player_id].death_day != -1
+	life_summary_button.visible = dead
 	save_button.disabled = world == null
 	district_panel.refresh(world)
 	if not selected_building_id.is_empty(): show_building(selected_building_id)
@@ -312,7 +328,7 @@ func refresh_world(world, paused: bool, speed: int) -> void:
 	relationships_panel.refresh(world)
 	focus_button.disabled = world == null
 	focus_panel.refresh(world)
-	pause_button.disabled = world == null
+	pause_button.disabled = world == null or dead
 	pause_button.text = "Duraklatıldı · Devam et" if paused else "Zaman akıyor · Duraklat"
 	for value in speed_buttons:
 		speed_buttons[value].disabled = world == null
@@ -325,9 +341,12 @@ func refresh_world(world, paused: bool, speed: int) -> void:
 	var age := Calendar.age_on(actor.birth_date, date)
 	date_label.text = Calendar.format_date(date)
 	age_label.text = "%s · %d yıl %d ay" % [actor.name, age.years, age.months]
+	var prison: String = preload("res://features/life/life_service.gd").prison_status(world)
+	if not prison.is_empty(): age_label.text += "\n" + prison
+	if dead: age_label.text += " · Hayatı sona erdi"
 
 func _show_personal_panel(panel: Control) -> void:
-	for candidate in [focus_panel, event_panel, relationships_panel, authority_panel, save_panel]:
+	for candidate in [focus_panel, event_panel, relationships_panel, authority_panel, save_panel, life_summary_panel]:
 		candidate.visible = candidate == panel
 	panel.move_to_front()
 

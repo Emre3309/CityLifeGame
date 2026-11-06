@@ -2,6 +2,7 @@ extends RefCounted
 
 const State = preload("res://core/world_state.gd")
 const Focus = preload("res://features/focus/focus_service.gd")
+const Life = preload("res://features/life/life_service.gd")
 const Events = preload("res://features/events/event_service.gd")
 
 var paused: bool = true
@@ -19,10 +20,17 @@ func set_speed(value: int) -> void:
 func advance_frame(world: State, delta: float) -> void:
 	if paused or world == null or delta <= 0 or not is_finite(delta):
 		return
+	if world.characters[world.player_id].death_day != -1:
+		set_paused(true)
+		return
 	_elapsed += delta * days_per_second
 	var days := int(floor(_elapsed + 0.0000001))
 	_elapsed = maxf(0.0, _elapsed - days)
-	advance_days(world, days)
+	for day in range(days):
+		advance_days(world, 1)
+		if world.characters[world.player_id].death_day != -1:
+			set_paused(true)
+			break
 
 func advance_days(world: State, count: int) -> void:
 	if world == null or count <= 0:
@@ -45,7 +53,4 @@ func _trigger_events(world: State) -> void:
 	Events.trigger(world)
 
 func _check_life(world: State) -> void:
-	for actor in world.characters.values():
-		if actor.death_day == -1 and world.day_index >= actor.lifespan_end_day:
-			actor.death_day = world.day_index
-			world.history.append({"type": "death", "day": world.day_index, "character_id": actor.id, "cause": "lifespan"})
+	Life.tick(world)
