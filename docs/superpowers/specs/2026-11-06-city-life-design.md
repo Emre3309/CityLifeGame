@@ -1,6 +1,6 @@
 # Şehir ve hayat stratejisi — tasarım taslağı
 
-Durum: Kullanıcı tarafından 2026-11-06 tarihinde onaylandı. Uygulama planı hazırlanıyor; ürün kodu henüz yazılmadı.
+Durum: Kullanıcı tarafından 2026-11-06 tarihinde onaylanan ilk oynanabilir prototip uygulandı. Fiziksel ve otomatik doğrulama kapsamı ve sınırları docs/validation/first-playable.md içindedir; uzun vadeli kariyer içeriği tamamlanmış sayılmaz.
 
 ## Amaç
 

@@ -1,6 +1,7 @@
 extends Control
 
 signal action_requested(action: String, payload: Dictionary)
+const DisplayNames = preload("res://core/display_names.gd")
 const Authority = preload("res://features/careers/authority_service.gd")
 const LABELS := {"set_security_priority":"Öncelik belirle · 20 bütçe", "allocate_budget":"Emniyete 100 aktar", "assign_patrol":"Devriye ata · 50 bütçe, 1 personel", "open_investigation":"Dosya aç · 50 bütçe, 1 personel", "launch_operation":"Operasyon · 100 bütçe, 2 personel", "assign_member":"Üye ata · 20 bütçe, 1 personel", "expand_influence":"Etki girişimi · 50 bütçe, 1 personel"}
 var summary: Label
@@ -39,7 +40,7 @@ func _ready() -> void:
 	close.text = "Kapat"
 	close.pressed.connect(hide)
 	heading.add_child(close)
-	feedback = _label("Makam yetkileri birbirinden bağımsızdır. Zamanı üst çubuktan duraklatabilirsin.")
+	feedback = _label("Makam yetkileri birbirinden bağımsızdır. Bu panel açıldığında zaman duraklatılır.")
 	column.add_child(feedback)
 	var scroll := ScrollContainer.new()
 	scroll.size_flags_vertical = Control.SIZE_EXPAND_FILL
@@ -72,7 +73,7 @@ func refresh(world: RefCounted) -> void:
 		summary.text = "Önce bir hayata başla."
 		return
 	var player: Dictionary = world.characters[world.player_id]
-	summary.text = "%s · Makam: %s\nPara kaynağı: başlangıç kurum hazineleri. Bütçe otomatik yenilenmez; vali hazineden emniyete aktarabilir.\nPersonel: haftada yenilenen en çok 3 görev birimi. Dosya incelemesi haftada 25 bütçe; +25 ilerleme, mevcut risk kadar (en çok +25) delil.\nOperasyon: en az 60 delil, 50 ilerleme, 2 personel. Prototip mahkûmiyeti 30 gün hapis başlatır." % [player.name,player.role]
+	summary.text = "%s · Makam: %s\nPara kaynağı: başlangıç kurum hazineleri. Bütçe otomatik yenilenmez; vali hazineden emniyete aktarabilir.\nPersonel: haftada yenilenen en çok 3 görev birimi. Dosya incelemesi haftada 25 bütçe; +25 ilerleme, mevcut risk kadar (en çok +25) delil.\nOperasyon: en az 60 delil, 50 ilerleme, 2 personel. Prototip mahkûmiyeti 30 gün hapis başlatır." % [player.name,DisplayNames.role(player.role)]
 	status.text = ""
 	for office in ["governorship","police","harbor_network"]:
 		var org: Dictionary = world.organizations[office]

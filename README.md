@@ -6,7 +6,7 @@ Godot 4 ile hazırlanmış Windows hayat ve şehir stratejisi ilk oynanabilir pr
 
 Hazırlanmış Windows paketinde `OyunuBaslat.bat` dosyasını açın veya `build/windows/SehirHayat.exe` dosyasını çalıştırın. EXE ve yanındaki `SehirHayat.pck` birlikte gereklidir. Paket Git tarafından izlenmez; yoksa aşağıdaki export adımını çalıştırın. Kaynak projeyi Godot ile açmak için `scripts/run.ps1` veya editörde `game/project.godot` kullanın.
 
-Sol tıklama mahalle seçer; sol tuşla sürükleme kamerayı taşır, sağ tuşla sürükleme döndürür, fare tekerleği yakınlaştırır. Üst çubuktan duraklatma ve hız seçimi yapılır. Odak, olay, ilişkiler ve kayıt panelleri üst çubuktadır. Başlangıç menüsündeki yetişkin senaryoları vali, polis ve ağ lideri yetkilerini denemek içindir.
+Sol tıklama mahalle seçer; sol tuşla sürükleme kamerayı taşır, sağ tuşla sürükleme döndürür, fare tekerleği yakınlaştırır. Üst çubuktan duraklatma ve hız seçimi yapılır. Kişisel ve kurum panelleri açıldığında zaman otomatik durur; panel kapandıktan sonra üst çubuktan yeniden başlatılabilir. Odak, olay, ilişkiler ve kayıt panelleri üst çubuktadır. Başlangıç menüsündeki yetişkin senaryoları vali, polis ve ağ lideri yetkilerini denemek içindir.
 
 ## Kurulum ve geliştirme
 
@@ -23,4 +23,4 @@ Test çalıştırıcısı tek suite veya tüm suite'leri çalıştırır; başar
 
 ## Kapsam ve doğrulama
 
-Bu sürüm tam üniversite hayatı, çift taraflı çalışma veya normal kariyer üzerinden tüm üst makamlara yükselme sunmaz. Üniversite hazırlığı kayıt sağlar, mezuniyet sağlamaz. Makam ve yetki örnekleri geliştirme senaryolarındadır. Doğrulama yöntemi ve sınırlamaları [ilk oynanabilir raporunda](docs/validation/first-playable.md) açıklanır.
+Romantik içerik tanışma ve görüşmeyle sınırlıdır; evlilik ve çocuk simülasyonu yoktur. Bu sürüm tam üniversite hayatı, çift taraflı çalışma veya normal kariyer üzerinden tüm üst makamlara yükselme sunmaz. Üniversite hazırlığı kayıt sağlar, mezuniyet sağlamaz. Makam ve yetki örnekleri geliştirme senaryolarındadır. Doğrulama yöntemi ve sınırlamaları [ilk oynanabilir raporunda](docs/validation/first-playable.md) açıklanır.

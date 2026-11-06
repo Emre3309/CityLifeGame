@@ -55,7 +55,6 @@ func refresh(world: RefCounted) -> void:
 			continue
 		var status := "Hayatta" if peer.death_day == -1 and world.day_index < peer.lifespan_end_day else "Hayatı sona erdi"
 		lines.append("%s · %s\nYakınlığın: %d/100 · Sana yakınlığı: %d/100" % [peer.name, status, actor.relationships[id], peer.relationships.get(world.player_id, 0)])
-	lines.append("Romantik prototip: yalnızca yaşıtlarla tanışma ve görüşme. Evlilik ve çocuk simülasyonu kapsam dışı.")
 	entries.text = "\n\n".join(lines)
 
 func _label(text: String, font_size: int) -> Label:

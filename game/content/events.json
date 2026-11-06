@@ -15,14 +15,14 @@
     ]
   },
   {
-    "id":"romance_meeting","title":"Kitaplar arasında tanışma","description":"Yaşıtın Aylin, kitapçı önünde kısa bir sohbet öneriyor. Karşılıklı tanışma ve arkadaşlık için küçük bir adım. Romantik prototip yalnızca tanışma ve görüşmeyle sınırlı; evlilik ve çocuk simülasyonu kapsam dışı.","min_day":10,"route":"any","participants":["aylin"],"romantic":true,"requires":{},
+    "id":"romance_meeting","title":"Kitaplar arasında tanışma","description":"Yaşıtın Aylin, kitapçı önünde kısa bir sohbet öneriyor. Karşılıklı tanışma ve arkadaşlık için küçük bir adım.","min_day":10,"route":"any","participants":["aylin"],"romantic":true,"requires":{},
     "choices":[
       {"id":"meet","title":"Sohbete katıl · Aylin'le yakınlık +5","reason":"Kitaplardan söz ettiniz ve yeniden görüşmek üzere anlaştınız.","effects":[{"type":"relationship","target":"aylin","amount":5}],"risk_chance":0,"risk_amount":0},
       {"id":"decline","title":"Nazikçe ayrıl","reason":"Sohbet teklifini nazikçe geri çevirdin; sınırına saygı duyuldu.","effects":[],"risk_chance":0,"risk_amount":0}
     ]
   },
   {
-    "id":"romance_visit","title":"Meydanda bir görüşme","description":"Aylin, gündüz meydanda yürüyüp konuşmayı teklif ediyor. Birbirinizi tanımaya devam edebilirsiniz. Evlilik ve çocuk simülasyonu kapsam dışı.","min_day":14,"route":"any","participants":["aylin"],"romantic":true,"requires":{"template_id":"romance_meeting","choice_id":"meet"},
+    "id":"romance_visit","title":"Meydanda bir görüşme","description":"Aylin, gündüz meydanda yürüyüp konuşmayı teklif ediyor. Birbirinizi tanımaya devam edebilirsiniz.","min_day":14,"route":"any","participants":["aylin"],"romantic":true,"requires":{"template_id":"romance_meeting","choice_id":"meet"},
     "choices":[
       {"id":"visit","title":"Görüşmeye katıl · Aylin'le yakınlık +10","reason":"Meydanda kısa bir yürüyüş ve karşılıklı sohbet yakınlığınızı artırdı.","effects":[{"type":"relationship","target":"aylin","amount":10}],"risk_chance":0,"risk_amount":0},
       {"id":"decline","title":"Görüşmeyi reddet","reason":"Bu kez görüşmemeyi seçtin; kararına saygı duyuldu.","effects":[],"risk_chance":0,"risk_amount":0}

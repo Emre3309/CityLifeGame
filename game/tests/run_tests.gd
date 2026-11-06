@@ -34,7 +34,7 @@ func _run() -> void:
 		if not test.has_method("run"):
 			failures.append("Test suite has no run() method: %s" % path)
 			continue
-		var result = test.run()
+		var result = await test.run()
 		if not result is Array:
 			failures.append("Test suite run() must return an Array[String]: %s" % path)
 			continue

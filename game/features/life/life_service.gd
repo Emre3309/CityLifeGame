@@ -59,7 +59,7 @@ static func prison_status(world: RefCounted) -> String:
 static func summary(world: RefCounted) -> String:
 	var actor: Dictionary = world.characters[world.player_id]
 	var cause := ""
-	var career: Array[String] = ["Son görev: " + {"citizen":"Vatandaş","governor":"Vali","police_chief":"Emniyet müdürü","gang_leader":"Ağ lideri","gang_member":"Ağ üyesi"}.get(actor.role,actor.role)]
+	var career: Array[String] = ["Son görev: " + preload("res://core/display_names.gd").role(actor.role)]
 	var changes: Array[String] = []
 	for entry in world.history:
 		if entry.get("character_id",entry.get("actor_id","")) != actor.id: continue

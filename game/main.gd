@@ -37,6 +37,10 @@ func _ready() -> void:
 		hud.event_panel.show_result(result.reason)
 		_refresh_hud()
 	)
+	hud.modal_opened.connect(func():
+		simulation.set_paused(true)
+		_refresh_hud()
+	)
 	hud.pause_requested.connect(func():
 		if world != null and world.characters[world.player_id].death_day == -1:
 			simulation.set_paused(not simulation.paused)

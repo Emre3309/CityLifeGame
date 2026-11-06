@@ -36,7 +36,7 @@ func _ready() -> void:
 	heading.add_child(close_button)
 	summary = _label("", 15)
 	column.add_child(summary)
-	feedback = _label("Seçeneklerin bedelini ve riskini okuyarak karar ver. Zamanı üst çubuktan duraklatabilirsin.", 14)
+	feedback = _label("Seçeneklerin bedelini ve riskini okuyarak karar ver. Bu panel açıldığında zaman duraklatılır.", 14)
 	column.add_child(feedback)
 	var scroll := ScrollContainer.new()
 	scroll.size_flags_vertical = Control.SIZE_EXPAND_FILL

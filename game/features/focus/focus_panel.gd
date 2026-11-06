@@ -3,7 +3,7 @@ extends Control
 signal start_requested(focus_id: String)
 
 const Focus = preload("res://features/focus/focus_service.gd")
-const EDUCATION_NAMES := {"high_school_graduate":"Lise mezunu", "high_school_dropout":"Lise yarıda", "university_enrolled":"Üniversiteye kayıtlı"}
+const DisplayNames = preload("res://core/display_names.gd")
 var summary: Label
 var feedback: Label
 var start_buttons: Dictionary = {}
@@ -109,7 +109,7 @@ func refresh(world: RefCounted) -> void:
 		summary.text = "Önce başlangıç yolunu seç."
 	else:
 		var actor: Dictionary = world.characters[world.player_id]
-		summary.text = "%s · Para: %d · Tamamlanan odak: %d" % [EDUCATION_NAMES.get(actor.education, actor.education), int(actor.money), world.completed_focuses.size()]
+		summary.text = "%s · Para: %d · Tamamlanan odak: %d" % [DisplayNames.education(actor.education), int(actor.money), world.completed_focuses.size()]
 		if not world.active_focus.is_empty():
 			var active_name: String = world.active_focus.id
 			for row in _rows:

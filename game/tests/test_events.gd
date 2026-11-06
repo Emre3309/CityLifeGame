@@ -218,7 +218,7 @@ func test_scene_choices_and_relationship_readout() -> Array[String]:
 		failures.append("UI must dispatch once and preserve readable result on repeated click")
 	scene.hud.relationships_button.pressed.emit()
 	var relationships = scene.hud.relationships_panel
-	if not relationships.visible or not relationships.summary.text.contains("125") or not relationships.entries.text.contains("Nermin") or not relationships.entries.text.contains("78") or not relationships.entries.text.contains("kapsam dışı"):
+	if not relationships.visible or not relationships.summary.text.contains("125") or not relationships.entries.text.contains("Nermin") or not relationships.entries.text.contains("78") or relationships.entries.text.contains("kapsam dışı"):
 		failures.append("relationships panel must show actual money, names, relationship values and prototype scope")
 	panel.refresh(scene.world)
 	relationships.refresh(scene.world)

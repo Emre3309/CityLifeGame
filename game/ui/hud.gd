@@ -9,6 +9,7 @@ signal focus_requested(focus_id: String)
 signal event_requested(event_id: String, choice_id: String)
 signal save_requested
 signal load_requested
+signal modal_opened
 signal pause_requested
 signal speed_requested(days_per_second: int)
 
@@ -340,12 +341,13 @@ func refresh_world(world, paused: bool, speed: int) -> void:
 	var date := Calendar.date_on(world.day_index)
 	var age := Calendar.age_on(actor.birth_date, date)
 	date_label.text = Calendar.format_date(date)
-	age_label.text = "%s · %d yıl %d ay" % [actor.name, age.years, age.months]
+	age_label.text = "%s · %d yıl %d ay · Sağlık %d/100" % [actor.name, age.years, age.months, actor.health]
 	var prison: String = preload("res://features/life/life_service.gd").prison_status(world)
 	if not prison.is_empty(): age_label.text += "\n" + prison
 	if dead: age_label.text += " · Hayatı sona erdi"
 
 func _show_personal_panel(panel: Control) -> void:
+	modal_opened.emit()
 	for candidate in [focus_panel, event_panel, relationships_panel, authority_panel, save_panel, life_summary_panel]:
 		candidate.visible = candidate == panel
 	panel.move_to_front()
@@ -371,7 +373,7 @@ func _build_save_panel() -> void:
 	column.add_theme_constant_override("separation", 14)
 	card.add_child(column)
 	column.add_child(_label("HAYATINI KAYDET", 22, Color("264e48")))
-	var hint := _label("Tek kayıt yuvası · Yüklemeden sonra zaman duraklatılır.", 14, Color("59675e"))
+	var hint := _label("Tek kayıt yuvası · Bu panel açıldığında zaman duraklatılır.", 14, Color("59675e"))
 	hint.autowrap_mode = TextServer.AUTOWRAP_WORD_SMART
 	column.add_child(hint)
 	var row := HBoxContainer.new()
