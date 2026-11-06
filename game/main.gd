@@ -77,4 +77,6 @@ func _process(delta: float) -> void:
 		_refresh_hud()
 
 func _refresh_hud() -> void:
+	city.refresh(world)
+	city.set_paused(world == null or simulation.paused)
 	hud.refresh_world(world, simulation.paused, simulation.days_per_second)

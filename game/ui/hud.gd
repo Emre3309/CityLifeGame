@@ -27,6 +27,7 @@ const TYPE_DESCRIPTIONS := {
 }
 var city_data: Dictionary = {}
 var selected_building_id := ""
+var selected_district_id := ""
 var detail_title: Label
 var district_label: Label
 var type_label: Label
@@ -62,13 +63,14 @@ func configure(data: Dictionary) -> void:
 
 func show_building(building_id: String) -> void:
 	selected_building_id = ""
+	selected_district_id = ""
 	for building in city_data.get("buildings", []):
 		if building.id == building_id:
 			selected_building_id = building_id
 			detail_title.text = building.name
 			type_label.text = TYPE_NAMES.get(building.type, building.type).to_upper()
 			district_label.text = _district(building.district_id).get("name", "")
-			description.text = TYPE_DESCRIPTIONS.get(building.type, "")
+			description.text = TYPE_DESCRIPTIONS.get(building.type, "") + "\n\n" + district_panel.readout(str(building.district_id))
 			return
 	type_label.text = "ŞEHRİ KEŞFET"
 	detail_title.text = "Bir binayı seçin"
@@ -80,10 +82,11 @@ func show_district(district_id: String) -> void:
 	if district.is_empty():
 		return
 	selected_building_id = ""
+	selected_district_id = district_id
 	type_label.text = "MAHALLE REHBERİ"
 	detail_title.text = district.name
 	district_label.text = district.subtitle
-	description.text = district.description
+	description.text = district_panel.readout(district_id) + "\n\n" + district.description
 	district_requested.emit(district_id)
 
 func _district(district_id: String) -> Dictionary:
@@ -147,11 +150,16 @@ func _build_ui() -> void:
 	detail_panel.set_anchors_and_offsets_preset(Control.PRESET_TOP_RIGHT)
 	detail_panel.offset_left = -294
 	detail_panel.offset_right = -20
-	detail_panel.offset_top = 110
+	detail_panel.offset_top = 148
+	detail_panel.offset_bottom = 565
 	root.add_child(detail_panel)
 	var column := VBoxContainer.new()
 	column.add_theme_constant_override("separation", 12)
-	detail_panel.add_child(column)
+	var detail_scroll := ScrollContainer.new()
+	detail_scroll.horizontal_scroll_mode = ScrollContainer.SCROLL_MODE_DISABLED
+	detail_panel.add_child(detail_scroll)
+	column.size_flags_horizontal = Control.SIZE_EXPAND_FILL
+	detail_scroll.add_child(column)
 	type_label = _label("", 12, Color("987b4c"))
 	column.add_child(type_label)
 	detail_title = _label("", 25, Color("264e48"))
@@ -228,6 +236,12 @@ func _layout() -> void:
 	header_title.visible = get_viewport().get_visible_rect().size.x >= 680
 	header_title.add_theme_font_size_override("font_size", 21 if narrow else 27)
 	detail_panel.offset_left = -244 if narrow else -294
+	detail_panel.offset_bottom = get_viewport().get_visible_rect().size.y - 160
+	root.get_node("Header").offset_left = 10 if narrow else 20
+	root.get_node("Header").offset_right = -10 if narrow else -20
+	root.get_node("Header").get_child(0).add_theme_constant_override("separation", 8 if narrow else 20)
+	focus_button.text = "Odak" if narrow else "Odak ağacı"
+	pause_button.text = pause_button.text.replace("Duraklatıldı · Devam et", "Devam et") if narrow else pause_button.text
 	controls_hint.text = "Sürükle: kaydır  ·  Sağ sürükle: döndür  ·  Tekerlek: yakınlaş" if narrow else "Sol sürükle: kaydır   ·   Sağ sürükle: döndür   ·   Tekerlek: yakınlaş   ·   Tıkla: bina seç"
 	controls_hint.add_theme_font_size_override("font_size", 11 if narrow else 13)
 
@@ -242,6 +256,7 @@ func _label(text: String, font_size: int, color: Color) -> Label:
 func _theme() -> Theme:
 	var result := Theme.new()
 	result.default_font_size = 16
+	result.set_color("font_color", "Label", Color("30564b"))
 	var panel := StyleBoxFlat.new()
 	panel.bg_color = Color("f4ecd9")
 	panel.border_color = Color("d6c9ab")
@@ -272,6 +287,10 @@ func _theme() -> Theme:
 	return result
 
 func refresh_world(world, paused: bool, speed: int) -> void:
+	district_panel.refresh(world)
+	if not selected_building_id.is_empty(): show_building(selected_building_id)
+	elif not selected_district_id.is_empty():
+		description.text = district_panel.readout(selected_district_id) + "\n\n" + str(_district(selected_district_id).get("description", ""))
 	authority_button.disabled = world == null
 	authority_panel.refresh(world)
 	events_button.disabled = world == null

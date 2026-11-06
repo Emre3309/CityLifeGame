@@ -1,11 +1,16 @@
 extends Node3D
 
+const WorldState = preload("res://core/world_state.gd")
+
 signal building_selected(building_id: String)
 
+const CrowdView = preload("res://city/crowd_view.gd")
 const BuildingView = preload("res://city/building_view.gd")
 var city_data: Dictionary = {}
 var selected_building_id := ""
 var buildings: Dictionary = {}
+var crowd: Node3D
+var district_markers: Dictionary = {}
 var scenery: Node3D
 var building_root: Node3D
 @onready var camera_rig = $CameraRig
@@ -18,7 +23,7 @@ func configure(data: Dictionary) -> void:
 	selected_building_id = ""
 	buildings.clear()
 	for child in get_children():
-		if child.name in ["Scenery", "Buildings"]:
+		if child.name in ["Scenery", "Buildings", "Crowd"]:
 			remove_child(child)
 			child.free()
 	scenery = Node3D.new()
@@ -27,7 +32,12 @@ func configure(data: Dictionary) -> void:
 	building_root = Node3D.new()
 	building_root.name = "Buildings"
 	add_child(building_root)
+	district_markers.clear()
 	_build_landscape()
+	crowd = CrowdView.new()
+	crowd.name = "Crowd"
+	add_child(crowd)
+	crowd.configure(data.get("districts", []))
 	for building_data in data.get("buildings", []):
 		var view = BuildingView.new()
 		building_root.add_child(view)
@@ -56,17 +66,17 @@ func _pick_building(screen_position: Vector2) -> void:
 
 func _build_landscape() -> void:
 	_box(Vector3(82, 1, 66), Vector3(-8, -0.65, 0), Color("a7b395"))
-	_box(Vector3(66, 0.22, 51), Vector3(-3, 0, 0), Color("d6c8a9"))
+	_box(Vector3(66, 0.22, 51), Vector3(-3, 0, 0), Color("b8ad94"))
 	_box(Vector3(55, 0.1, 49), Vector3(59, -0.3, 0), Color("6b9f9d"))
 	_box(Vector3(4, 0.45, 53), Vector3(30, 0, 0), Color("c5b597"))
 	for z in [-12.0, 2.0, 25.0, -26.0]:
 		_box(Vector3(66, 0.08, 4.5), Vector3(-3, 0.17, z), Color("e4d8bc"))
-		_box(Vector3(66, 0.1, 3.0), Vector3(-3, 0.24, z), Color("76847c"))
+		_box(Vector3(66, 0.1, 3.0), Vector3(-3, 0.24, z), Color("4c5b58"))
 		for x in range(-32, 30, 5):
 			_box(Vector3(1.8, 0.02, 0.1), Vector3(x, 0.3, z), Color("d4cead"))
 	for x in [-14.0, 14.0, -35.0]:
 		_box(Vector3(4.5, 0.08, 51), Vector3(x, 0.17, 0), Color("e4d8bc"))
-		_box(Vector3(3.0, 0.1, 51), Vector3(x, 0.24, 0), Color("76847c"))
+		_box(Vector3(3.0, 0.1, 51), Vector3(x, 0.24, 0), Color("4c5b58"))
 	# The small civic square stays open and legible between the public buildings.
 	_box(Vector3(6, 0.15, 9), Vector3(0.5, 0.23, -5), Color("c7ba9e"))
 	_cylinder(1.5, 0.45, Vector3(0.5, 0.55, -5), Color("e6dbc1"))
@@ -96,6 +106,7 @@ func _build_landscape() -> void:
 		label.outline_modulate = Color("365f57")
 		label.outline_size = 10
 		scenery.add_child(label)
+		district_markers[str(district.id)] = label
 
 func _tree(point: Vector3) -> void:
 	_cylinder(0.2, 2.1, point + Vector3(0, 1.2, 0), Color("8d7657"))
@@ -142,3 +153,17 @@ func _material(color: Color) -> StandardMaterial3D:
 	result.albedo_color = color
 	result.roughness = 1.0
 	return result
+
+# A read-only projection of the current world. No commands or simulation ticks belong here.
+func refresh(world: WorldState) -> void:
+	crowd.refresh(world)
+	for district in city_data.get("districts", []):
+		var marker: Label3D = district_markers[str(district.id)]
+		marker.text = str(district.name).to_upper()
+		if world == null or not world.districts.has(district.id): continue
+		var state: Dictionary = world.districts[district.id]
+		marker.text += "\nGüven %d · Suç %d · Refah %d" % [state.trust, state.crime_pressure, state.prosperity]
+		marker.modulate = Color("d8ead4") if state.trust >= 50 else Color("f0c69a")
+
+func set_paused(value: bool) -> void:
+	if crowd != null: crowd.set_paused(value)

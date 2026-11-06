@@ -13,7 +13,8 @@ func _ready() -> void:
 	camera = Camera3D.new()
 	camera.name = "Camera"
 	camera.projection = Camera3D.PROJECTION_ORTHOGONAL
-	camera.size = 64.0
+	camera.size = 86.0
+	camera.h_offset = 10.0
 	camera.position = Vector3(0, 51, 46)
 	add_child(camera)
 	camera.look_at(global_position)
