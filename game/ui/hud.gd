@@ -3,12 +3,15 @@ extends CanvasLayer
 signal district_requested(district_id: String)
 signal start_requested(route: String)
 signal focus_requested(focus_id: String)
+signal event_requested(event_id: String, choice_id: String)
 signal pause_requested
 signal speed_requested(days_per_second: int)
 
 const Calendar = preload("res://core/calendar.gd")
 const StartPanel = preload("res://ui/start_panel.gd")
 const FocusPanel = preload("res://features/focus/focus_panel.gd")
+const EventPanel = preload("res://features/events/event_panel.gd")
+const RelationshipsPanel = preload("res://features/life/relationships_panel.gd")
 const DistrictPanel = preload("res://ui/district_panel.gd")
 const TYPE_NAMES := {"home": "Konut", "cafe": "Kahvehane", "school": "Okul", "police": "Karakol", "government": "Hükümet konağı", "warehouse": "Depo"}
 const TYPE_DESCRIPTIONS := {
@@ -32,6 +35,10 @@ var controls_hint: Label
 var age_label: Label
 var focus_button: Button
 var focus_panel: Control
+var events_button: Button
+var relationships_button: Button
+var event_panel: Control
+var relationships_panel: Control
 var pause_button: Button
 var speed_buttons: Dictionary = {}
 var start_panel: Control
@@ -111,7 +118,7 @@ func _build_ui() -> void:
 	focus_button = Button.new()
 	focus_button.text = "Odak ağacı"
 	focus_button.disabled = true
-	focus_button.pressed.connect(func(): focus_panel.show())
+	focus_button.pressed.connect(func(): _show_personal_panel(focus_panel))
 	header_row.add_child(focus_button)
 	var time_controls := VBoxContainer.new()
 	header_row.add_child(time_controls)
@@ -173,6 +180,27 @@ func _build_ui() -> void:
 	focus_panel.name = "FocusPanel"
 	root.add_child(focus_panel)
 	focus_panel.start_requested.connect(func(focus_id: String): focus_requested.emit(focus_id))
+	var personal_controls := HBoxContainer.new()
+	personal_controls.position = Vector2(20, 104)
+	personal_controls.add_theme_constant_override("separation", 8)
+	root.add_child(personal_controls)
+	events_button = Button.new()
+	events_button.text = "Olaylar (0)"
+	events_button.disabled = true
+	events_button.pressed.connect(func(): _show_personal_panel(event_panel))
+	personal_controls.add_child(events_button)
+	relationships_button = Button.new()
+	relationships_button.text = "İlişkiler"
+	relationships_button.disabled = true
+	relationships_button.pressed.connect(func(): _show_personal_panel(relationships_panel))
+	personal_controls.add_child(relationships_button)
+	event_panel = EventPanel.new()
+	event_panel.name = "EventPanel"
+	root.add_child(event_panel)
+	event_panel.choice_requested.connect(func(event_id: String, choice_id: String): event_requested.emit(event_id, choice_id))
+	relationships_panel = RelationshipsPanel.new()
+	relationships_panel.name = "RelationshipsPanel"
+	root.add_child(relationships_panel)
 	start_panel = StartPanel.new()
 	start_panel.name = "StartPanel"
 	root.add_child(start_panel)
@@ -229,6 +257,11 @@ func _theme() -> Theme:
 	return result
 
 func refresh_world(world, paused: bool, speed: int) -> void:
+	events_button.disabled = world == null
+	relationships_button.disabled = world == null
+	events_button.text = "Olaylar (%d)" % (0 if world == null else world.pending_events.size())
+	event_panel.refresh(world)
+	relationships_panel.refresh(world)
 	focus_button.disabled = world == null
 	focus_panel.refresh(world)
 	pause_button.disabled = world == null
@@ -244,3 +277,8 @@ func refresh_world(world, paused: bool, speed: int) -> void:
 	var age := Calendar.age_on(actor.birth_date, date)
 	date_label.text = Calendar.format_date(date)
 	age_label.text = "%s · %d yıl %d ay" % [actor.name, age.years, age.months]
+
+func _show_personal_panel(panel: Control) -> void:
+	for candidate in [focus_panel, event_panel, relationships_panel]:
+		candidate.visible = candidate == panel
+	panel.move_to_front()

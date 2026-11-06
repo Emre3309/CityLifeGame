@@ -3,7 +3,7 @@ extends RefCounted
 static func load_all(path: String) -> Dictionary:
 	var data: Dictionary = {}
 	var errors: Array[String] = []
-	for name in ["city", "characters", "organizations", "focuses"]:
+	for name in ["city", "characters", "organizations", "focuses", "events"]:
 		var file_path := path.path_join(name + ".json")
 		if not FileAccess.file_exists(file_path):
 			errors.append("İçerik dosyası bulunamadı: " + file_path)
@@ -28,6 +28,7 @@ static func validate(data: Dictionary) -> Array[String]:
 	var districts := _index(city.districts, "mahalle", errors)
 	_index(city.buildings, "bina", errors)
 	var characters := _index(data.characters, "kişi", errors)
+	errors.append_array(preload("res://features/events/event_service.gd").validate(data.get("events"), characters.keys()))
 	_index(data.organizations, "kurum", errors)
 	for building in city.buildings:
 		if building is Dictionary and not districts.has(building.get("district_id", "")):

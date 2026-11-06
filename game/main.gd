@@ -20,6 +20,11 @@ func _ready() -> void:
 		hud.focus_panel.show_result(result.reason)
 		_refresh_hud()
 	)
+	hud.event_requested.connect(func(event_id: String, choice_id: String):
+		var result := Commands.execute(world, {"type":"resolve_event", "event_id":event_id, "choice_id":choice_id})
+		hud.event_panel.show_result(result.reason)
+		_refresh_hud()
+	)
 	hud.pause_requested.connect(func():
 		if world != null:
 			simulation.set_paused(not simulation.paused)

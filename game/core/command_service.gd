@@ -3,6 +3,7 @@ extends RefCounted
 const State = preload("res://core/world_state.gd")
 const Factory = preload("res://core/world_factory.gd")
 const Focus = preload("res://features/focus/focus_service.gd")
+const Events = preload("res://features/events/event_service.gd")
 
 static func execute(world: State, command: Dictionary) -> Dictionary:
 	if command.get("type", "") == "start_world":
@@ -20,4 +21,8 @@ static func execute(world: State, command: Dictionary) -> Dictionary:
 		if not command.get("focus_id") is String:
 			return {"ok": false, "reason": "Odak kimliği geçersiz."}
 		return Focus.start(world, command.focus_id)
+	if command.get("type", "") == "resolve_event":
+		if not command.get("event_id") is String or not command.get("choice_id") is String:
+			return {"ok":false, "reason":"Olay ve seçenek kimlikleri geçersiz."}
+		return Events.resolve(world, command.event_id, command.choice_id)
 	return {"ok": false, "reason": "Bilinmeyen komut."}

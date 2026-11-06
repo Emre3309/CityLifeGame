@@ -2,6 +2,7 @@ extends RefCounted
 
 const State = preload("res://core/world_state.gd")
 const Focus = preload("res://features/focus/focus_service.gd")
+const Events = preload("res://features/events/event_service.gd")
 
 var paused: bool = true
 var days_per_second: int = 1
@@ -33,15 +34,15 @@ func advance_days(world: State, count: int) -> void:
 		_trigger_events(world)
 		_check_life(world)
 
-# Remaining daily stages are filled by Tasks 6 and 5 respectively.
+# Independent NPC decisions are filled by Task 6.
 func _tick_focus(world: State) -> void:
 	Focus.tick(world)
 
 func _tick_npcs(_world: State) -> void:
 	pass
 
-func _trigger_events(_world: State) -> void:
-	pass
+func _trigger_events(world: State) -> void:
+	Events.trigger(world)
 
 func _check_life(world: State) -> void:
 	for actor in world.characters.values():

@@ -23,12 +23,13 @@ static func create(route: String, seed: int) -> State:
 		}
 	for character in catalog.data.characters:
 		world.characters[character.id] = character.duplicate(true)
+		world.characters[character.id].investigation_risk = 0
 	for organization in catalog.data.organizations:
 		world.organizations[organization.id] = organization.duplicate(true)
 	world.characters[world.player_id] = {
 		"id": world.player_id, "name": "Deniz", "district_id": "cinar",
 		"birth_date": {"year": 1945, "month": 3, "day": 1}, "death_day": -1,
-		"health": 100, "money": 100,
+		"health": 100, "money": 100, "investigation_risk": 0,
 		"background": "Liseyi bitirdin; eğitim ve kamu hayatına açılan bir yol önünde." if route == "light" else "Liseyi yarıda bıraktın; geçimini sağlamak için sokak çevrenle bağ kurdun.",
 		"route": route, "role": "citizen",
 		"education": "high_school_graduate" if route == "light" else "high_school_dropout",

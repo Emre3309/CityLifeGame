@@ -1,0 +1,31 @@
+[
+  {
+    "id":"family_support","title":"Evde ortak bir karar","description":"Nermin geçim planını seninle konuşuyor. Aile desteği alabilir, ev bütçesine katkıda bulunabilir veya okul dışındaki saatlerinde yarı zamanlı çalışabilirsin.","min_day":3,"route":"any","participants":["nermin"],"romantic":false,"requires":{},
+    "choices":[
+      {"id":"ask_help","title":"Aile desteği iste · Para +40, Nermin −40, yakınlık +5","reason":"Nermin birikiminden sana destek verdi.","effects":[{"type":"money","target":"player","amount":40},{"type":"money","target":"nermin","amount":-40},{"type":"relationship","target":"nermin","amount":5}],"risk_chance":0,"risk_amount":0},
+      {"id":"part_time_work","title":"Yarı zamanlı çalış · Para +25, yakınlık +8","reason":"Gündüz dükkânda yaptığın kısa işin ücretini aldın; Nermin çabanı takdir etti.","effects":[{"type":"money","target":"player","amount":25},{"type":"relationship","target":"nermin","amount":8}],"risk_chance":0,"risk_amount":0},
+      {"id":"help_family","title":"Ev bütçesine yardım et · Para −30, Nermin +30, yakınlık +12","reason":"Ev giderleri için Nermin'e katkıda bulundun.","effects":[{"type":"money","target":"player","amount":-30},{"type":"money","target":"nermin","amount":30},{"type":"relationship","target":"nermin","amount":12}],"risk_chance":0,"risk_amount":0}
+    ]
+  },
+  {
+    "id":"port_offer","title":"Limanda şüpheli teklif","description":"Rıza, içeriği belirsiz bir teslimat için yüksek ücret öneriyor. Kabul etmek +100 para sağlar; Nermin'le yakınlığın 12 azalır. Yüzde 45 ihtimalle soruşturma riski 25 artar. Bu gösterge anında tutuklama veya ölüm anlamına gelmez.","min_day":7,"route":"dark","participants":["riza","nermin"],"romantic":false,"requires":{},
+    "choices":[
+      {"id":"accept","title":"Teklifi kabul et · +100 para / −12 yakınlık / %45 soruşturma riski","reason":"Şüpheli teslimatın ücretini aldın; Nermin bu çevreye girmeni kaygıyla karşıladı.","effects":[{"type":"money","target":"player","amount":100},{"type":"relationship","target":"nermin","amount":-12}],"risk_chance":0.45,"risk_amount":25},
+      {"id":"decline","title":"Reddet · Para değişmez, yakınlık +3","reason":"Teklifi reddettin; Nermin kararından memnun oldu.","effects":[{"type":"relationship","target":"nermin","amount":3}],"risk_chance":0,"risk_amount":0}
+    ]
+  },
+  {
+    "id":"romance_meeting","title":"Kitaplar arasında tanışma","description":"Yaşıtın Aylin, kitapçı önünde kısa bir sohbet öneriyor. Karşılıklı tanışma ve arkadaşlık için küçük bir adım. Romantik prototip yalnızca tanışma ve görüşmeyle sınırlı; evlilik ve çocuk simülasyonu kapsam dışı.","min_day":10,"route":"any","participants":["aylin"],"romantic":true,"requires":{},
+    "choices":[
+      {"id":"meet","title":"Sohbete katıl · Aylin'le yakınlık +5","reason":"Kitaplardan söz ettiniz ve yeniden görüşmek üzere anlaştınız.","effects":[{"type":"relationship","target":"aylin","amount":5}],"risk_chance":0,"risk_amount":0},
+      {"id":"decline","title":"Nazikçe ayrıl","reason":"Sohbet teklifini nazikçe geri çevirdin; sınırına saygı duyuldu.","effects":[],"risk_chance":0,"risk_amount":0}
+    ]
+  },
+  {
+    "id":"romance_visit","title":"Meydanda bir görüşme","description":"Aylin, gündüz meydanda yürüyüp konuşmayı teklif ediyor. Birbirinizi tanımaya devam edebilirsiniz. Evlilik ve çocuk simülasyonu kapsam dışı.","min_day":14,"route":"any","participants":["aylin"],"romantic":true,"requires":{"template_id":"romance_meeting","choice_id":"meet"},
+    "choices":[
+      {"id":"visit","title":"Görüşmeye katıl · Aylin'le yakınlık +10","reason":"Meydanda kısa bir yürüyüş ve karşılıklı sohbet yakınlığınızı artırdı.","effects":[{"type":"relationship","target":"aylin","amount":10}],"risk_chance":0,"risk_amount":0},
+      {"id":"decline","title":"Görüşmeyi reddet","reason":"Bu kez görüşmemeyi seçtin; kararına saygı duyuldu.","effects":[],"risk_chance":0,"risk_amount":0}
+    ]
+  }
+]
