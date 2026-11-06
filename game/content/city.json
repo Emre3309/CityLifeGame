@@ -1,0 +1,26 @@
+{
+  "name": "Şehir ve Hayat",
+  "districts": [
+    {"id":"cinar","name":"Çınar Mahallesi","subtitle":"Avlular, okul ve gündelik hayat","description":"Kiremit çatılı evlerin, gölgeli sokakların ve okul bahçesinin çevresinde sakin bir mahalle.","center":[-20,0,-7]},
+    {"id":"carsi","name":"Çarşı Mahallesi","subtitle":"Kahve, meydan ve kamu hayatı","description":"Kahvehanede sohbet başlar; okul, karakol ve hükümet konağı şehrin ortak meydanına açılır.","center":[3,0,-5]},
+    {"id":"liman","name":"Liman Mahallesi","subtitle":"İskeleler ve denize açılan yollar","description":"Depoların, işçi evlerinin ve kıyı kahvesinin ardında vapurların geçtiği mavi bir ufuk uzanır.","center":[18,0,13]}
+  ],
+  "buildings": [
+    {"id":"cinar_home_1","name":"Çınarlı Ev","district_id":"cinar","type":"home","position":[-29,0,-17],"size":[5,5,5],"color":"d7b186"},
+    {"id":"cinar_home_2","name":"Bahçeli Ev","district_id":"cinar","type":"home","position":[-21,0,-17],"size":[5,4,5],"color":"d6c7a2"},
+    {"id":"cinar_home_3","name":"Sarı Konak","district_id":"cinar","type":"home","position":[-29,0,-7],"size":[5,6,5],"color":"dbbc76"},
+    {"id":"cinar_home_4","name":"Yeşil Ev","district_id":"cinar","type":"home","position":[-21,0,-7],"size":[5,5,5],"color":"9eafa0"},
+    {"id":"cinar_school","name":"Çınar İlkokulu","district_id":"cinar","type":"school","position":[-26,0,7],"size":[10,5,6],"color":"e6d5ad"},
+    {"id":"cinar_cafe","name":"Çınaraltı Kahvesi","district_id":"cinar","type":"cafe","position":[-21,0,18],"size":[6,3,5],"color":"c99372"},
+    {"id":"carsi_government","name":"Hükümet Konağı","district_id":"carsi","type":"government","position":[-5,0,-18],"size":[9,7,6],"color":"e8d9b8"},
+    {"id":"carsi_police","name":"Meydan Karakolu","district_id":"carsi","type":"police","position":[7,0,-18],"size":[7,5,6],"color":"aabdb5"},
+    {"id":"carsi_home_1","name":"Meydan Apartmanı","district_id":"carsi","type":"home","position":[-6,0,-5],"size":[5,7,5],"color":"d7b797"},
+    {"id":"carsi_home_2","name":"Saatçi Sokağı Evi","district_id":"carsi","type":"home","position":[7,0,-5],"size":[5,6,5],"color":"bdc5b0"},
+    {"id":"carsi_cafe","name":"Sahil Kahvesi","district_id":"carsi","type":"cafe","position":[-6,0,12],"size":[7,3.5,5],"color":"d8ac78"},
+    {"id":"carsi_school","name":"Cumhuriyet Ortaokulu","district_id":"carsi","type":"school","position":[7,0,13],"size":[8,5,6],"color":"e0d0aa"},
+    {"id":"liman_warehouse_1","name":"Gümrük Deposu","district_id":"liman","type":"warehouse","position":[21,0,-18],"size":[9,5,7],"color":"b8a58d"},
+    {"id":"liman_warehouse_2","name":"Kıyı Ambarı","district_id":"liman","type":"warehouse","position":[21,0,-6],"size":[9,4,6],"color":"c9b893"},
+    {"id":"liman_home_1","name":"İskele Evi","district_id":"liman","type":"home","position":[21,0,7],"size":[5,4,5],"color":"b5c8bb"},
+    {"id":"liman_cafe","name":"Vapur Kahvesi","district_id":"liman","type":"cafe","position":[21,0,18],"size":[6,3,5],"color":"d5bc94"}
+  ]
+}

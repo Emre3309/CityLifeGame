@@ -1,0 +1,28 @@
+[gd_scene load_steps=4 format=3]
+
+[ext_resource type="Script" path="res://city/city_view.gd" id="1_city"]
+[ext_resource type="Script" path="res://city/camera_rig.gd" id="2_camera"]
+
+[sub_resource type="Environment" id="Environment_city"]
+background_mode = 1
+background_color = Color(0.72, 0.79, 0.75, 1)
+ambient_light_source = 3
+ambient_light_color = Color(0.94, 0.92, 0.81, 1)
+ambient_light_energy = 0.72
+tonemap_mode = 0
+
+[node name="City" type="Node3D"]
+script = ExtResource("1_city")
+
+[node name="CameraRig" type="Node3D" parent="."]
+script = ExtResource("2_camera")
+
+[node name="WorldEnvironment" type="WorldEnvironment" parent="."]
+environment = SubResource("Environment_city")
+
+[node name="Sun" type="DirectionalLight3D" parent="."]
+rotation_degrees = Vector3(-58, -34, 0)
+light_color = Color(1, 0.93, 0.78, 1)
+light_energy = 1.25
+shadow_enabled = true
+directional_shadow_max_distance = 180.0
