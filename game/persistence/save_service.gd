@@ -7,6 +7,8 @@ const Events = preload("res://features/events/event_service.gd")
 const Authority = preload("res://features/careers/authority_service.gd")
 const TOP := ["schema_version","day_index","player_id","characters","districts","organizations","active_focus","completed_focuses","pending_events","resolved_event_ids","history","rng_seed","rng_state"]
 const MAX_EXACT := 9007199254740991
+# Bound untrusted dates before any UI calendar calculation (approximately 1000 years).
+const MAX_SUPPORTED_DAY := 365250
 var _io: RefCounted
 
 # The optional IO boundary keeps filesystem failures testable without changing world logic.
@@ -131,7 +133,8 @@ static func _normalize(value: Variant) -> Variant:
 static func _decode(raw: Variant) -> Dictionary:
 	if not raw is Dictionary or not _number(raw.get("schema_version"),1,1): return _fail("Desteklenmeyen kayıt sürümü; yalnızca sürüm 1 yüklenebilir.")
 	if not _fields(raw,TOP): return _fail("Kayıt alanları eksik veya bilinmeyen şemada.")
-	if not _number(raw.day_index) or not _signed64(raw.rng_seed) or not _signed64(raw.rng_state): return _fail("Kayıt tarihi veya RNG değeri geçersiz.")
+	if not _number(raw.day_index,0,MAX_SUPPORTED_DAY): return _fail("Kayıt günü desteklenen 0–365250 aralığında olmalı.")
+	if not _signed64(raw.rng_seed) or not _signed64(raw.rng_state): return _fail("Kayıt RNG değeri geçersiz.")
 	var data: Dictionary = raw.duplicate(true)
 	for field in ["characters","districts","organizations"]:
 		if not raw[field] is Array or raw[field].is_empty(): return _fail("Kayıtta kimlikli liste gerekli: " + field)
@@ -159,10 +162,10 @@ static func _decode(raw: Variant) -> Dictionary:
 	if not data.active_focus is Dictionary: return _fail("Etkin odak geçersiz.")
 	if not data.active_focus.is_empty():
 		var active: Dictionary = data.active_focus
-		if not _fields(active,["id","actor_id","start_day","end_day"]) or not _ref(active.id,focuses) or not _ref(active.actor_id,chars) or active.id in data.completed_focuses or not _number(active.start_day,0,data.day_index) or not _number(active.end_day,active.start_day + 1) or focuses[active.id].future or active.end_day - active.start_day != focuses[active.id].duration_days: return _fail("Etkin odak kimliği veya tarihi geçersiz.")
+		if not _fields(active,["id","actor_id","start_day","end_day"]) or not _ref(active.id,focuses) or active.actor_id != data.player_id or active.id in data.completed_focuses or not _number(active.start_day,0,data.day_index) or not _number(active.end_day,active.start_day + 1) or focuses[active.id].future or active.end_day - active.start_day != focuses[active.id].duration_days: return _fail("Etkin odak kimliği veya tarihi geçersiz.")
 	var seen := {}
 	for event in data.pending_events:
-		if not _fields(event,["instance_id","template_id","actor_id","participant_ids","created_day"]) or not _ref(event.template_id,events) or not _ref(event.actor_id,chars) or not event.instance_id is String: return _fail("Bekleyen olay geçersiz.")
+		if not _fields(event,["instance_id","template_id","actor_id","participant_ids","created_day"]) or not _ref(event.template_id,events) or event.actor_id != data.player_id or not event.instance_id is String: return _fail("Bekleyen olay geçersiz.")
 		if event.instance_id != event.actor_id + ":" + event.template_id or seen.has(event.instance_id) or event.instance_id in data.resolved_event_ids or not _list(event.participant_ids,chars,true) or not _number(event.created_day,events[event.template_id].min_day,data.day_index): return _fail("Olay kimliği, tarihi veya katılımcısı geçersiz.")
 		var expected: Array = [event.actor_id]
 		expected.append_array(events[event.template_id].participants)

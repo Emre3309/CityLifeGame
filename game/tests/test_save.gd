@@ -10,6 +10,8 @@ func run() -> Array[String]:
 	test_rejects_invalid_saves()
 	test_save_write_failure_preserves_previous_file()
 	test_nested_state_and_rng_boundaries()
+	test_personal_actors_must_match_player()
+	test_supported_day_limits_do_not_replace_live_world()
 	test_corrupt_save_keeps_live_world()
 	return failures
 
@@ -104,6 +106,59 @@ func test_rejects_invalid_saves() -> void:
 	for fixture in ["res://tests/fixtures/invalid.json", "res://tests/fixtures/unsupported_version.json", "user://saves/missing_save_test.json"]:
 		if service.load_world(fixture).ok: failures.append("invalid/missing fixture accepted: " + fixture)
 
+# Existing identities are insufficient: personal focus/events must belong to the current player.
+func test_personal_actors_must_match_player() -> void:
+	var service = load("res://persistence/save_service.gd").new()
+	service.save_world(_world(),PATH)
+	var valid: Dictionary = JSON.parse_string(FileAccess.get_file_as_string(PATH))
+	for kind in ["focus_npc", "event_npc"]:
+		var bad := valid.duplicate(true)
+		if kind == "focus_npc":
+			bad.active_focus.actor_id = "cem"
+		else:
+			var event: Dictionary = bad.pending_events[0]
+			event.actor_id = "cem"
+			event.instance_id = "cem:" + event.template_id
+			event.participant_ids[0] = "cem"
+		_write(bad)
+		var result: Dictionary = service.load_world(PATH)
+		if result.ok or result.world != null or result.reason.is_empty(): failures.append("personal state must reject existing non-player actor: " + kind)
+
+# Out-of-range days must fail before Calendar.date_on can loop on untrusted huge values.
+func test_supported_day_limits_do_not_replace_live_world() -> void:
+	var service = load("res://persistence/save_service.gd").new()
+	service.save_world(_world(),PATH)
+	var valid: Dictionary = JSON.parse_string(FileAccess.get_file_as_string(PATH))
+	valid.active_focus = {}
+	valid.pending_events = []
+	var scene = load("res://main.tscn").instantiate()
+	(Engine.get_main_loop() as SceneTree).root.add_child(scene)
+	scene.set_process(false)
+	scene.hud.start_requested.emit("light")
+	scene.save_path = PATH
+	var live = scene.world
+	var snapshot: Dictionary = live.to_dict()
+	for day in [365251, 9007199254740991]:
+		var bad := valid.duplicate(true)
+		bad.day_index = day
+		_write(bad)
+		var result: Dictionary = service.load_world(PATH)
+		if result.ok:
+			# Do not dispatch a known unsafe load into Calendar during the RED run.
+			failures.append("unsupported day_index accepted: " + str(day))
+			continue
+		if result.world != null or not result.reason.contains("365250"): failures.append("unsupported date must explain supported day limit")
+		scene.hud.load_requested.emit()
+		if scene.world != live or live.to_dict() != snapshot or not scene.hud.save_feedback.text.contains("365250"):
+			failures.append("unsupported day must preserve live world and show date-range error")
+	# The supported endpoint must still load and render the HUD calendar.
+	valid.day_index = 365250
+	_write(valid)
+	scene.hud.load_requested.emit()
+	if scene.world == live or scene.world.day_index != 365250 or not scene.simulation.paused or scene.hud.date_label.text.is_empty():
+		failures.append("maximum supported date must load, refresh HUD and pause")
+	scene.free()
+
 # Only the IO boundary fails; real save code must leave the existing slot bytes loadable.
 func test_save_write_failure_preserves_previous_file() -> void:
 	var service = load("res://persistence/save_service.gd").new()
@@ -155,4 +210,3 @@ class FailingIO:
 	func rename_file(from: String, to: String) -> Error:
 		if (stage == "backup" and to.ends_with(".bak")) or (stage == "install" and from.ends_with(".tmp")): return ERR_CANT_CREATE
 		return DirAccess.rename_absolute(from, to)
-
