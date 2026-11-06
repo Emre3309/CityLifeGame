@@ -1,0 +1,18 @@
+{
+  "engine": "Godot",
+  "edition": "standard",
+  "release": "4.7.2-stable",
+  "version_output": "4.7.2.stable.official.ed1daf0bf",
+  "console_executable": "tools/godot/Godot_v4.7.2-stable_win64_console.exe",
+  "gui_executable": "tools/godot/Godot_v4.7.2-stable_win64.exe",
+  "metadata_url": "https://api.github.com/repos/godotengine/godot-builds/releases/tags/4.7.2-stable",
+  "download_url": "https://github.com/godotengine/godot-builds/releases/download/4.7.2-stable/Godot_v4.7.2-stable_win64.exe.zip",
+  "archive_sha512": "83decd58fdf67b9d657958a1ae6bf1929c20785315a81effe245874cdc57acb709bf868e00778a96984338c1b29dafdb453c6847747694621c6ecf5da2259993",
+  "checksums_url": "https://github.com/godotengine/godot-builds/releases/download/4.7.2-stable/SHA512-SUMS.txt",
+  "export_templates": {
+    "version": "4.7.2.stable",
+    "edition": "standard",
+    "download_url": "https://github.com/godotengine/godot-builds/releases/download/4.7.2-stable/Godot_v4.7.2-stable_export_templates.tpz",
+    "archive_sha512": "ca4d71c4d7b81dfc15d1a98baa07534aa95b03fdda78a0075b06672e1648d2e5f40980c9adc28d23e1b92e732ee7bf3461997aa804af74ec2fcd7a93ccb84079"
+  }
+}

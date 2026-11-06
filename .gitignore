@@ -1,0 +1,8 @@
+# Godot import/cache data
+.godot/
+
+# Downloaded engine, archives and export templates
+tools/godot/
+
+# Local/exported builds
+build/
