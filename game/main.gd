@@ -4,6 +4,9 @@ const State = preload("res://core/world_state.gd")
 const Commands = preload("res://core/command_service.gd")
 const Simulation = preload("res://core/simulation.gd")
 
+const Saves = preload("res://persistence/save_service.gd")
+var saves := Saves.new()
+var save_path := "user://saves/slot1.json"
 var world: State
 var simulation := Simulation.new()
 @onready var city = $City
@@ -14,6 +17,8 @@ func _ready() -> void:
 	city.configure(city_data)
 	hud.configure(city_data)
 	city.building_selected.connect(hud.show_building)
+	hud.save_requested.connect(_save_world)
+	hud.load_requested.connect(_load_world)
 	hud.start_requested.connect(_start_world)
 	hud.scenario_requested.connect(_start_scenario)
 	hud.authority_requested.connect(func(action: String, payload: Dictionary):
@@ -80,3 +85,16 @@ func _refresh_hud() -> void:
 	city.refresh(world)
 	city.set_paused(world == null or simulation.paused)
 	hud.refresh_world(world, simulation.paused, simulation.days_per_second)
+
+func _save_world() -> void:
+	var result := saves.save_world(world,save_path)
+	hud.show_save_result(result.reason)
+
+func _load_world() -> void:
+	var result := saves.load_world(save_path)
+	if result.ok:
+		world = result.world
+		simulation.set_paused(true)
+		hud.start_panel.hide()
+		_refresh_hud()
+	hud.show_save_result(result.reason)

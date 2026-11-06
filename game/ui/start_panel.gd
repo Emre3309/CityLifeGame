@@ -1,5 +1,6 @@
 extends Control
 
+signal load_requested
 signal route_chosen(route: String)
 signal scenario_chosen(scenario_id: String)
 var message: Label
@@ -37,6 +38,10 @@ func _ready() -> void:
 	hint.text = "Yol seçimi bu hayat için kalıcıdır. Oyun duraklatılmış başlar."
 	hint.autowrap_mode = TextServer.AUTOWRAP_WORD_SMART
 	column.add_child(hint)
+	var load_button := Button.new()
+	load_button.text = "Kaydedilmiş hayata devam et"
+	load_button.pressed.connect(func(): load_requested.emit())
+	column.add_child(load_button)
 	var demo_menu := MenuButton.new()
 	demo_menu.text = "Geliştirme senaryoları · ayrı yetişkin dünyası"
 	var scenarios: Array = preload("res://core/world_factory.gd").scenarios()

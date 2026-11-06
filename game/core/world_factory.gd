@@ -24,8 +24,15 @@ static func create(route: String, seed: int) -> State:
 	for character in catalog.data.characters:
 		world.characters[character.id] = character.duplicate(true)
 		world.characters[character.id].investigation_risk = 0
+		# JSON parses all numbers as floats; the domain uses whole-valued fields.
+		var actor: Dictionary = world.characters[character.id]
+		for field in ["death_day","health","money","imprisoned_until","lifespan_end_day"]: actor[field] = int(actor[field])
+		for field in ["year","month","day"]: actor.birth_date[field] = int(actor.birth_date[field])
+		for field in ["knowledge","relationships"]:
+			for key in actor[field]: actor[field][key] = int(actor[field][key])
 	for organization in catalog.data.organizations:
 		world.organizations[organization.id] = organization.duplicate(true)
+		world.organizations[organization.id].budget = int(organization.budget)
 		world.organizations[organization.id].capacity = 3
 		world.organizations[organization.id].capacity_max = 3
 	world.organizations.governorship.security_priority = "liman"

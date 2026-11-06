@@ -6,6 +6,8 @@ signal scenario_requested(scenario_id: String)
 signal authority_requested(action: String, payload: Dictionary)
 signal focus_requested(focus_id: String)
 signal event_requested(event_id: String, choice_id: String)
+signal save_requested
+signal load_requested
 signal pause_requested
 signal speed_requested(days_per_second: int)
 
@@ -25,6 +27,9 @@ const TYPE_DESCRIPTIONS := {
 	"government": "Şehrin idari işlerinin yürütüldüğü hükümet konağı. Meydanın en belirgin yapısı.",
 	"warehouse": "Kıyıdan gelen malların toplandığı ambar. Limanın çalışma hayatı burada şekillenir."
 }
+var save_panel: Control
+var save_feedback: Label
+var save_button: Button
 var city_data: Dictionary = {}
 var selected_building_id := ""
 var selected_district_id := ""
@@ -212,6 +217,11 @@ func _build_ui() -> void:
 	authority_button.disabled = true
 	authority_button.pressed.connect(func(): _show_personal_panel(authority_panel))
 	personal_controls.add_child(authority_button)
+	var saves_button := Button.new()
+	saves_button.text = "Kayıt"
+	saves_button.pressed.connect(func(): _show_personal_panel(save_panel))
+	personal_controls.add_child(saves_button)
+	_build_save_panel()
 	authority_panel = AuthorityPanel.new()
 	authority_panel.name = "AuthorityPanel"
 	root.add_child(authority_panel)
@@ -226,6 +236,7 @@ func _build_ui() -> void:
 	start_panel = StartPanel.new()
 	start_panel.name = "StartPanel"
 	root.add_child(start_panel)
+	start_panel.load_requested.connect(func(): load_requested.emit())
 	start_panel.scenario_chosen.connect(func(scenario_id: String): scenario_requested.emit(scenario_id))
 	start_panel.route_chosen.connect(func(route: String): start_requested.emit(route))
 
@@ -287,6 +298,7 @@ func _theme() -> Theme:
 	return result
 
 func refresh_world(world, paused: bool, speed: int) -> void:
+	save_button.disabled = world == null
 	district_panel.refresh(world)
 	if not selected_building_id.is_empty(): show_building(selected_building_id)
 	elif not selected_district_id.is_empty():
@@ -315,6 +327,54 @@ func refresh_world(world, paused: bool, speed: int) -> void:
 	age_label.text = "%s · %d yıl %d ay" % [actor.name, age.years, age.months]
 
 func _show_personal_panel(panel: Control) -> void:
-	for candidate in [focus_panel, event_panel, relationships_panel, authority_panel]:
+	for candidate in [focus_panel, event_panel, relationships_panel, authority_panel, save_panel]:
 		candidate.visible = candidate == panel
 	panel.move_to_front()
+
+func _build_save_panel() -> void:
+	save_panel = Control.new()
+	save_panel.name = "SavePanel"
+	save_panel.set_anchors_and_offsets_preset(Control.PRESET_FULL_RECT)
+	save_panel.mouse_filter = Control.MOUSE_FILTER_STOP
+	root.add_child(save_panel)
+	var shade := ColorRect.new()
+	shade.color = Color(0.08, 0.17, 0.14, 0.70)
+	shade.set_anchors_and_offsets_preset(Control.PRESET_FULL_RECT)
+	save_panel.add_child(shade)
+	var card := PanelContainer.new()
+	card.set_anchors_and_offsets_preset(Control.PRESET_CENTER)
+	card.offset_left = -250
+	card.offset_right = 250
+	card.offset_top = -140
+	card.offset_bottom = 140
+	save_panel.add_child(card)
+	var column := VBoxContainer.new()
+	column.add_theme_constant_override("separation", 14)
+	card.add_child(column)
+	column.add_child(_label("HAYATINI KAYDET", 22, Color("264e48")))
+	var hint := _label("Tek kayıt yuvası · Yüklemeden sonra zaman duraklatılır.", 14, Color("59675e"))
+	hint.autowrap_mode = TextServer.AUTOWRAP_WORD_SMART
+	column.add_child(hint)
+	var row := HBoxContainer.new()
+	column.add_child(row)
+	save_button = Button.new()
+	save_button.text = "Kaydet"
+	save_button.pressed.connect(func(): save_requested.emit())
+	row.add_child(save_button)
+	var load_button := Button.new()
+	load_button.text = "Kaydı yükle"
+	load_button.pressed.connect(func(): load_requested.emit())
+	row.add_child(load_button)
+	var close_button := Button.new()
+	close_button.text = "Kapat"
+	close_button.pressed.connect(func(): save_panel.hide())
+	row.add_child(close_button)
+	save_feedback = _label("", 14, Color("30564b"))
+	save_feedback.autowrap_mode = TextServer.AUTOWRAP_WORD_SMART
+	column.add_child(save_feedback)
+	save_panel.hide()
+
+func show_save_result(text: String) -> void:
+	save_feedback.text = text
+	if start_panel.visible:
+		start_panel.show_error(text)
