@@ -1,7 +1,12 @@
 extends CanvasLayer
 
 signal district_requested(district_id: String)
+signal start_requested(route: String)
+signal pause_requested
+signal speed_requested(days_per_second: int)
 
+const Calendar = preload("res://core/calendar.gd")
+const StartPanel = preload("res://ui/start_panel.gd")
 const DistrictPanel = preload("res://ui/district_panel.gd")
 const TYPE_NAMES := {"home": "Konut", "cafe": "Kahvehane", "school": "Okul", "police": "Karakol", "government": "Hükümet konağı", "warehouse": "Depo"}
 const TYPE_DESCRIPTIONS := {
@@ -22,6 +27,10 @@ var detail_panel: PanelContainer
 var header_title: Label
 var date_label: Label
 var controls_hint: Label
+var age_label: Label
+var pause_button: Button
+var speed_buttons: Dictionary = {}
+var start_panel: Control
 var root: Control
 var district_panel: PanelContainer
 
@@ -90,10 +99,28 @@ func _build_ui() -> void:
 	header_row.add_child(titles)
 	header_title = _label("ŞEHİR VE HAYAT", 27, Color("264e48"))
 	titles.add_child(header_title)
-	titles.add_child(_label("Bir şehrin içinde, bir hayatın eşiğinde.", 13, Color("66766a")))
+	age_label = _label("Geçmişini seçerek hayatına başla.", 13, Color("66766a"))
+	titles.add_child(age_label)
 	date_label = _label("1962  /  ŞEHİR REHBERİ", 15, Color("6b7c70"))
 	date_label.vertical_alignment = VERTICAL_ALIGNMENT_CENTER
 	header_row.add_child(date_label)
+	var time_controls := VBoxContainer.new()
+	header_row.add_child(time_controls)
+	pause_button = Button.new()
+	pause_button.text = "Duraklatıldı · Devam et"
+	pause_button.disabled = true
+	pause_button.pressed.connect(func(): pause_requested.emit())
+	time_controls.add_child(pause_button)
+	var speeds := HBoxContainer.new()
+	time_controls.add_child(speeds)
+	for speed in [1, 4, 12]:
+		var button := Button.new()
+		button.text = "%d gün/sn" % speed
+		button.toggle_mode = true
+		button.disabled = true
+		button.pressed.connect(func(): speed_requested.emit(speed))
+		speed_buttons[speed] = button
+		speeds.add_child(button)
 	detail_panel = PanelContainer.new()
 	detail_panel.name = "Information"
 	detail_panel.set_anchors_and_offsets_preset(Control.PRESET_TOP_RIGHT)
@@ -133,10 +160,16 @@ func _build_ui() -> void:
 	controls_hint.offset_bottom = -115
 	controls_hint.mouse_filter = Control.MOUSE_FILTER_IGNORE
 	root.add_child(controls_hint)
+	start_panel = StartPanel.new()
+	start_panel.name = "StartPanel"
+	root.add_child(start_panel)
+	start_panel.route_chosen.connect(func(route: String): start_requested.emit(route))
 
 func _layout() -> void:
 	var narrow := get_viewport().get_visible_rect().size.x < 800
-	date_label.visible = not narrow
+	date_label.visible = true
+	date_label.add_theme_font_size_override("font_size", 12 if narrow else 15)
+	header_title.visible = get_viewport().get_visible_rect().size.x >= 680
 	header_title.add_theme_font_size_override("font_size", 21 if narrow else 27)
 	detail_panel.offset_left = -244 if narrow else -294
 	controls_hint.text = "Sürükle: kaydır  ·  Sağ sürükle: döndür  ·  Tekerlek: yakınlaş" if narrow else "Sol sürükle: kaydır   ·   Sağ sürükle: döndür   ·   Tekerlek: yakınlaş   ·   Tıkla: bina seç"
@@ -181,3 +214,18 @@ func _theme() -> Theme:
 	for state in ["font_color", "font_hover_color", "font_pressed_color", "font_focus_color"]:
 		result.set_color(state, "Button", Color("30564b"))
 	return result
+
+func refresh_world(world, paused: bool, speed: int) -> void:
+	pause_button.disabled = world == null
+	pause_button.text = "Duraklatıldı · Devam et" if paused else "Zaman akıyor · Duraklat"
+	for value in speed_buttons:
+		speed_buttons[value].disabled = world == null
+		speed_buttons[value].set_pressed_no_signal(value == speed)
+	if world == null:
+		date_label.text = "01.09.1962"
+		return
+	var actor: Dictionary = world.characters[world.player_id]
+	var date := Calendar.date_on(world.day_index)
+	var age := Calendar.age_on(actor.birth_date, date)
+	date_label.text = Calendar.format_date(date)
+	age_label.text = "%s · %d yıl %d ay" % [actor.name, age.years, age.months]

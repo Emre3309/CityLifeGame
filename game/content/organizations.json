@@ -1,0 +1,5 @@
+[
+  {"id":"governorship","name":"Valilik","district_id":"carsi","leader_id":"kemal","budget":3000},
+  {"id":"police","name":"Emniyet","district_id":"carsi","leader_id":"selim","budget":1200},
+  {"id":"harbor_network","name":"Liman Çevresi","district_id":"liman","leader_id":"riza","budget":800}
+]
