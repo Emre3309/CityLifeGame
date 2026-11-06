@@ -2,11 +2,13 @@ extends CanvasLayer
 
 signal district_requested(district_id: String)
 signal start_requested(route: String)
+signal focus_requested(focus_id: String)
 signal pause_requested
 signal speed_requested(days_per_second: int)
 
 const Calendar = preload("res://core/calendar.gd")
 const StartPanel = preload("res://ui/start_panel.gd")
+const FocusPanel = preload("res://features/focus/focus_panel.gd")
 const DistrictPanel = preload("res://ui/district_panel.gd")
 const TYPE_NAMES := {"home": "Konut", "cafe": "Kahvehane", "school": "Okul", "police": "Karakol", "government": "Hükümet konağı", "warehouse": "Depo"}
 const TYPE_DESCRIPTIONS := {
@@ -28,6 +30,8 @@ var header_title: Label
 var date_label: Label
 var controls_hint: Label
 var age_label: Label
+var focus_button: Button
+var focus_panel: Control
 var pause_button: Button
 var speed_buttons: Dictionary = {}
 var start_panel: Control
@@ -104,6 +108,11 @@ func _build_ui() -> void:
 	date_label = _label("1962  /  ŞEHİR REHBERİ", 15, Color("6b7c70"))
 	date_label.vertical_alignment = VERTICAL_ALIGNMENT_CENTER
 	header_row.add_child(date_label)
+	focus_button = Button.new()
+	focus_button.text = "Odak ağacı"
+	focus_button.disabled = true
+	focus_button.pressed.connect(func(): focus_panel.show())
+	header_row.add_child(focus_button)
 	var time_controls := VBoxContainer.new()
 	header_row.add_child(time_controls)
 	pause_button = Button.new()
@@ -160,6 +169,10 @@ func _build_ui() -> void:
 	controls_hint.offset_bottom = -115
 	controls_hint.mouse_filter = Control.MOUSE_FILTER_IGNORE
 	root.add_child(controls_hint)
+	focus_panel = FocusPanel.new()
+	focus_panel.name = "FocusPanel"
+	root.add_child(focus_panel)
+	focus_panel.start_requested.connect(func(focus_id: String): focus_requested.emit(focus_id))
 	start_panel = StartPanel.new()
 	start_panel.name = "StartPanel"
 	root.add_child(start_panel)
@@ -216,6 +229,8 @@ func _theme() -> Theme:
 	return result
 
 func refresh_world(world, paused: bool, speed: int) -> void:
+	focus_button.disabled = world == null
+	focus_panel.refresh(world)
 	pause_button.disabled = world == null
 	pause_button.text = "Duraklatıldı · Devam et" if paused else "Zaman akıyor · Duraklat"
 	for value in speed_buttons:

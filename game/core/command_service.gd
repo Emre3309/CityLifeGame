@@ -2,6 +2,7 @@ extends RefCounted
 
 const State = preload("res://core/world_state.gd")
 const Factory = preload("res://core/world_factory.gd")
+const Focus = preload("res://features/focus/focus_service.gd")
 
 static func execute(world: State, command: Dictionary) -> Dictionary:
 	if command.get("type", "") == "start_world":
@@ -15,4 +16,8 @@ static func execute(world: State, command: Dictionary) -> Dictionary:
 		if created == null:
 			return {"ok": false, "reason": "Başlangıç yolu veya içerik geçersiz."}
 		return {"ok": true, "reason": "Hayatın başladı.", "world": created}
+	if command.get("type", "") == "start_focus":
+		if not command.get("focus_id") is String:
+			return {"ok": false, "reason": "Odak kimliği geçersiz."}
+		return Focus.start(world, command.focus_id)
 	return {"ok": false, "reason": "Bilinmeyen komut."}

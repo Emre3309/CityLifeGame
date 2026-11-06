@@ -15,6 +15,11 @@ func _ready() -> void:
 	hud.configure(city_data)
 	city.building_selected.connect(hud.show_building)
 	hud.start_requested.connect(_start_world)
+	hud.focus_requested.connect(func(focus_id: String):
+		var result := Commands.execute(world, {"type":"start_focus", "focus_id":focus_id})
+		hud.focus_panel.show_result(result.reason)
+		_refresh_hud()
+	)
 	hud.pause_requested.connect(func():
 		if world != null:
 			simulation.set_paused(not simulation.paused)

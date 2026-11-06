@@ -3,7 +3,7 @@ extends RefCounted
 static func load_all(path: String) -> Dictionary:
 	var data: Dictionary = {}
 	var errors: Array[String] = []
-	for name in ["city", "characters", "organizations"]:
+	for name in ["city", "characters", "organizations", "focuses"]:
 		var file_path := path.path_join(name + ".json")
 		if not FileAccess.file_exists(file_path):
 			errors.append("İçerik dosyası bulunamadı: " + file_path)
@@ -21,6 +21,7 @@ static func validate(data: Dictionary) -> Array[String]:
 	var errors: Array[String] = []
 	if not data.get("city") is Dictionary or not data.get("characters") is Array or not data.get("organizations") is Array:
 		return ["Şehir nesnesi, kişi ve kurum listeleri gerekli."]
+	errors.append_array(preload("res://features/focus/focus_service.gd").validate(data.get("focuses")))
 	var city: Dictionary = data.city
 	if not city.get("districts") is Array or not city.get("buildings") is Array:
 		return ["Mahalle ve bina listeleri gerekli."]
