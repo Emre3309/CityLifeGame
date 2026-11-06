@@ -6,6 +6,16 @@ const Focus = preload("res://features/focus/focus_service.gd")
 const Events = preload("res://features/events/event_service.gd")
 
 static func execute(world: State, command: Dictionary) -> Dictionary:
+	if command.get("type", "") == "start_scenario":
+		if world != null: return {"ok":false,"reason":"Başlamış hayat değiştirilemez; geliştirme senaryosu için yeniden başlat."}
+		if not command.get("scenario_id") is String or not command.get("seed",1) is int: return {"ok":false,"reason":"Senaryo bilgileri geçersiz."}
+		var created := Factory.create_scenario(command.scenario_id,command.get("seed",1))
+		if created == null: return {"ok":false,"reason":"Geliştirme senaryosu bulunamadı."}
+		return {"ok":true,"reason":"Ayrı geliştirme dünyası başladı.","world":created}
+	if command.get("type", "") == "authority":
+		if world == null or command.get("actor_id") != world.player_id: return {"ok":false,"reason":"Yalnızca oyuncu kimliğiyle emir verilebilir."}
+		if not command.get("action") is String or not command.get("payload") is Dictionary: return {"ok":false,"reason":"Emir bilgileri geçersiz."}
+		return preload("res://features/careers/authority_service.gd").apply(world,world.player_id,command.action,command.payload)
 	if command.get("type", "") == "start_world":
 		if world != null:
 			return {"ok": false, "reason": "Hayat başladı; başlangıç yolu yeniden seçilemez."}

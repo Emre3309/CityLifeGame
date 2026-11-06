@@ -1,0 +1,22 @@
+[
+  {
+    "id": "governor_demo",
+    "title": "Vali · Kemal Bey (48 yaş, üniversite mezunu)",
+    "actor_id": "kemal",
+    "route": "light"
+  },
+  {
+    "id": "police_demo",
+    "title": "Emniyet müdürü · Selim Bey (42 yaş, polis eğitimi)",
+    "actor_id": "selim",
+    "route": "light",
+    "risk_target_id": "riza",
+    "investigation_risk": 25
+  },
+  {
+    "id": "gang_demo",
+    "title": "Suç ağı lideri · Rıza (36 yaş, lise yarıda)",
+    "actor_id": "riza",
+    "route": "dark"
+  }
+]

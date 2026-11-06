@@ -129,7 +129,10 @@ func test_batch_equals_daily() -> Array[String]:
 		simulation.advance_days(daily, 1)
 	if batch.to_dict() != daily.to_dict() or batch.day_index != 10 or batch.characters[batch.player_id].death_day != 3:
 		return ["batch must execute every day, including life checks on day 3"]
-	if batch.history.size() != 1:
+	var death_count := 0
+	for entry in batch.history:
+		if entry.type == "death" and entry.character_id == batch.player_id: death_count += 1
+	if death_count != 1:
 		return ["lifespan death must be recorded once"]
 	return []
 

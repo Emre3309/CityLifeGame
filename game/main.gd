@@ -15,6 +15,12 @@ func _ready() -> void:
 	hud.configure(city_data)
 	city.building_selected.connect(hud.show_building)
 	hud.start_requested.connect(_start_world)
+	hud.scenario_requested.connect(_start_scenario)
+	hud.authority_requested.connect(func(action: String, payload: Dictionary):
+		var result := Commands.execute(world,{"type":"authority","actor_id":world.player_id,"action":action,"payload":payload})
+		hud.authority_panel.show_result(result.reason)
+		_refresh_hud()
+	)
 	hud.focus_requested.connect(func(focus_id: String):
 		var result := Commands.execute(world, {"type":"start_focus", "focus_id":focus_id})
 		hud.focus_panel.show_result(result.reason)
@@ -44,6 +50,16 @@ func _ready() -> void:
 
 func _start_world(route: String) -> void:
 	var result := Commands.execute(world, {"type": "start_world", "route": route, "seed": 19620901})
+	if not result.ok:
+		hud.start_panel.show_error(result.reason)
+		return
+	world = result.world
+	simulation.set_paused(true)
+	hud.start_panel.hide()
+	_refresh_hud()
+
+func _start_scenario(scenario_id: String) -> void:
+	var result := Commands.execute(world,{"type":"start_scenario","scenario_id":scenario_id,"seed":19620901})
 	if not result.ok:
 		hud.start_panel.show_error(result.reason)
 		return

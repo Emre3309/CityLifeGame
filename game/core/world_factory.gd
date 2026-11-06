@@ -26,6 +26,12 @@ static func create(route: String, seed: int) -> State:
 		world.characters[character.id].investigation_risk = 0
 	for organization in catalog.data.organizations:
 		world.organizations[organization.id] = organization.duplicate(true)
+		world.organizations[organization.id].capacity = 3
+		world.organizations[organization.id].capacity_max = 3
+	world.organizations.governorship.security_priority = "liman"
+	world.organizations.police.investigations = {}
+	world.organizations.harbor_network.member_ids = ["cem"]
+	world.organizations.harbor_network.assignments = {}
 	world.characters[world.player_id] = {
 		"id": world.player_id, "name": "Deniz", "district_id": "cinar",
 		"birth_date": {"year": 1945, "month": 3, "day": 1}, "death_day": -1,
@@ -39,3 +45,19 @@ static func create(route: String, seed: int) -> State:
 	world.characters.nermin.relationships[world.player_id] = 70
 	world.characters.aylin.relationships[world.player_id] = 20
 	return world
+
+# Development worlds use established adult office holders; normal routes still create Deniz.
+static func scenarios() -> Array:
+	var data = JSON.parse_string(FileAccess.get_file_as_string("res://content/scenarios.json"))
+	return data if data is Array else []
+
+static func create_scenario(scenario_id: String, seed_value: int) -> State:
+	for row in scenarios():
+		if row.id == scenario_id:
+			var world := create(row.route,seed_value)
+			if world == null or not world.characters.has(row.actor_id): return null
+			world.player_id = row.actor_id
+			if row.has("risk_target_id"): world.characters[row.risk_target_id].investigation_risk = int(row.investigation_risk)
+			world.history.append({"type":"development_scenario","day":0,"reason":"Geliştirme senaryosu: " + row.title})
+			return world
+	return null

@@ -2,12 +2,15 @@ extends CanvasLayer
 
 signal district_requested(district_id: String)
 signal start_requested(route: String)
+signal scenario_requested(scenario_id: String)
+signal authority_requested(action: String, payload: Dictionary)
 signal focus_requested(focus_id: String)
 signal event_requested(event_id: String, choice_id: String)
 signal pause_requested
 signal speed_requested(days_per_second: int)
 
 const Calendar = preload("res://core/calendar.gd")
+const AuthorityPanel = preload("res://features/careers/authority_panel.gd")
 const StartPanel = preload("res://ui/start_panel.gd")
 const FocusPanel = preload("res://features/focus/focus_panel.gd")
 const EventPanel = preload("res://features/events/event_panel.gd")
@@ -35,6 +38,8 @@ var controls_hint: Label
 var age_label: Label
 var focus_button: Button
 var focus_panel: Control
+var authority_button: Button
+var authority_panel: Control
 var events_button: Button
 var relationships_button: Button
 var event_panel: Control
@@ -194,6 +199,15 @@ func _build_ui() -> void:
 	relationships_button.disabled = true
 	relationships_button.pressed.connect(func(): _show_personal_panel(relationships_panel))
 	personal_controls.add_child(relationships_button)
+	authority_button = Button.new()
+	authority_button.text = "Kurumlar"
+	authority_button.disabled = true
+	authority_button.pressed.connect(func(): _show_personal_panel(authority_panel))
+	personal_controls.add_child(authority_button)
+	authority_panel = AuthorityPanel.new()
+	authority_panel.name = "AuthorityPanel"
+	root.add_child(authority_panel)
+	authority_panel.action_requested.connect(func(action: String, payload: Dictionary): authority_requested.emit(action,payload))
 	event_panel = EventPanel.new()
 	event_panel.name = "EventPanel"
 	root.add_child(event_panel)
@@ -204,6 +218,7 @@ func _build_ui() -> void:
 	start_panel = StartPanel.new()
 	start_panel.name = "StartPanel"
 	root.add_child(start_panel)
+	start_panel.scenario_chosen.connect(func(scenario_id: String): scenario_requested.emit(scenario_id))
 	start_panel.route_chosen.connect(func(route: String): start_requested.emit(route))
 
 func _layout() -> void:
@@ -257,6 +272,8 @@ func _theme() -> Theme:
 	return result
 
 func refresh_world(world, paused: bool, speed: int) -> void:
+	authority_button.disabled = world == null
+	authority_panel.refresh(world)
 	events_button.disabled = world == null
 	relationships_button.disabled = world == null
 	events_button.text = "Olaylar (%d)" % (0 if world == null else world.pending_events.size())
@@ -279,6 +296,6 @@ func refresh_world(world, paused: bool, speed: int) -> void:
 	age_label.text = "%s · %d yıl %d ay" % [actor.name, age.years, age.months]
 
 func _show_personal_panel(panel: Control) -> void:
-	for candidate in [focus_panel, event_panel, relationships_panel]:
+	for candidate in [focus_panel, event_panel, relationships_panel, authority_panel]:
 		candidate.visible = candidate == panel
 	panel.move_to_front()

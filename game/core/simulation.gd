@@ -34,12 +34,12 @@ func advance_days(world: State, count: int) -> void:
 		_trigger_events(world)
 		_check_life(world)
 
-# Independent NPC decisions are filled by Task 6.
+# Domain services remain independent of scenes and UI.
 func _tick_focus(world: State) -> void:
 	Focus.tick(world)
 
-func _tick_npcs(_world: State) -> void:
-	pass
+func _tick_npcs(world: State) -> void:
+	preload("res://features/npc/npc_service.gd").tick(world)
 
 func _trigger_events(world: State) -> void:
 	Events.trigger(world)

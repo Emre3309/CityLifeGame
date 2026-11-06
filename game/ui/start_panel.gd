@@ -1,6 +1,7 @@
 extends Control
 
 signal route_chosen(route: String)
+signal scenario_chosen(scenario_id: String)
 var message: Label
 var card: PanelContainer
 
@@ -36,6 +37,12 @@ func _ready() -> void:
 	hint.text = "Yol seçimi bu hayat için kalıcıdır. Oyun duraklatılmış başlar."
 	hint.autowrap_mode = TextServer.AUTOWRAP_WORD_SMART
 	column.add_child(hint)
+	var demo_menu := MenuButton.new()
+	demo_menu.text = "Geliştirme senaryoları · ayrı yetişkin dünyası"
+	var scenarios: Array = preload("res://core/world_factory.gd").scenarios()
+	for row in scenarios: demo_menu.get_popup().add_item(row.title)
+	demo_menu.get_popup().id_pressed.connect(func(index: int): scenario_chosen.emit(scenarios[index].id))
+	column.add_child(demo_menu)
 	get_viewport().size_changed.connect(_layout)
 	_layout()
 
@@ -46,5 +53,5 @@ func _layout() -> void:
 	var width := minf(620.0, get_viewport().get_visible_rect().size.x - 40.0)
 	card.offset_left = -width / 2
 	card.offset_right = width / 2
-	card.offset_top = -190
-	card.offset_bottom = 190
+	card.offset_top = -220
+	card.offset_bottom = 220
